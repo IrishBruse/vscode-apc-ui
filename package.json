@@ -1,94 +1,113 @@
 {
-  "name": "ib-acp",
-  "displayName": "ACP UI",
-  "description": "Agent Client Protocol (ACP) UI integration",
-  "publisher": "irishbruse",
-  "author": "Ethan Conneely",
-  "version": "0.0.1",
-  "license": "MIT",
-  "engines": {
-    "vscode": "^1.115.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./dist/extension.js",
-  "contributes": {
-    "configuration": {
-      "type": "object",
-      "title": "IrishBruse ACP",
-      "properties": {
-        "ib-acp.agents": {
-          "type": "array",
-          "description": "ACP agent configurations. Each entry defines an agent subprocess to launch (same shape as ib-utilities.acpAgents during migration).",
-          "items": {
-            "type": "object",
-            "required": [
-              "name",
-              "command"
-            ],
-            "properties": {
-              "name": {
-                "type": "string",
-                "description": "Display name for the agent."
-              },
-              "command": {
-                "type": "string",
-                "description": "Executable to spawn (e.g. 'npx', 'gemini', 'claude')."
-              },
-              "args": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "description": "Arguments passed to the command."
-              },
-              "env": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "string"
-                },
-                "description": "Extra environment variables for the agent process."
-              }
-            }
-          },
-          "default": []
-        }
-      }
+    "name": "ib-acp",
+    "displayName": "ACP UI",
+    "description": "Agent Client Protocol (ACP) UI integration",
+    "publisher": "irishbruse",
+    "author": "Ethan Conneely",
+    "version": "0.1.0",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.115.0"
     },
-    "commands": [
-      {
-        "command": "ib-acp.showAcpRpcLog",
-        "title": "Show ACP RPC Log",
-        "category": "IrishBruse ACP"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run package",
-    "build": "node esbuild.mjs",
-    "watch": "node esbuild.mjs --watch",
-    "package": "node esbuild.mjs --production",
-    "check": "tsc --noEmit",
-    "test": "vitest run",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write .",
-    "verify": "npm run build && npm run check && npm run test && npm run lint"
-  },
-  "dependencies": {
-    "@agentclientprotocol/sdk": "^0.18.2"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.11",
-    "@types/node": "^24.12.2",
-    "@types/vscode": "^1.115.0",
-    "@vscode/vsce": "^3.7.1",
-    "esbuild": "^0.28.0",
-    "typescript": "^6.0.2",
-    "vitest": "^4.1.0"
-  }
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "IrishBruse ACP",
+            "properties": {
+                "ib-acp.agents": {
+                    "type": "array",
+                    "description": "ACP agent configurations. Each entry defines an agent subprocess to launch (same shape as ib-utilities.acpAgents during migration).",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "command"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Display name for the agent."
+                            },
+                            "command": {
+                                "type": "string",
+                                "description": "Executable to spawn (e.g. 'npx', 'gemini', 'claude')."
+                            },
+                            "args": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "Arguments passed to the command."
+                            },
+                            "env": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "description": "Extra environment variables for the agent process."
+                            }
+                        }
+                    },
+                    "default": []
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "ib-acp.openChat",
+                "title": "Open IB Chat",
+                "category": "IrishBruse ACP"
+            },
+            {
+                "command": "ib-acp.showAcpRpcLog",
+                "title": "Show ACP RPC Log",
+                "category": "IrishBruse ACP"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run package",
+        "build:webview": "vite build --config webview/ib-chat/vite.config.ts",
+        "dev:standalone": "concurrently --names FE,BE --prefix-colors cyan,yellow \"vite --config standalone/vite.config.ts\" \"tsx --watch standalone/server.ts\"",
+        "build": "npm run build:webview && node esbuild.mjs",
+        "watch": "node esbuild.mjs --watch",
+        "package": "npm run build:webview && node esbuild.mjs --production",
+        "check": "tsc --noEmit && tsc --noEmit -p webview/ib-chat/tsconfig.json && tsc --noEmit -p standalone/tsconfig.json",
+        "test": "vitest run",
+        "lint": "biome check .",
+        "lint:fix": "biome check --write .",
+        "format": "biome format --write .",
+        "verify": "npm run build && npm run check && npm run test && npm run lint"
+    },
+    "dependencies": {
+        "@agentclientprotocol/sdk": "^0.18.2",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
+        "react-markdown": "^10.1.0",
+        "remark-gfm": "^4.0.1",
+        "ws": "^8.20.0"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.4.11",
+        "@types/node": "^24.12.2",
+        "@types/react": "^19.2.0",
+        "@types/react-dom": "^19.2.0",
+        "@types/vscode": "^1.115.0",
+        "@types/ws": "^8.18.0",
+        "@vitejs/plugin-react": "^6.0.1",
+        "@vscode/vsce": "^3.7.1",
+        "concurrently": "^9.2.1",
+        "esbuild": "^0.28.0",
+        "tsx": "^4.21.0",
+        "typescript": "^6.0.2",
+        "vite": "^8.0.1",
+        "vitest": "^4.1.0"
+    }
 }

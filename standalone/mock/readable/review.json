@@ -1,0 +1,585 @@
+[
+    {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "method": "initialize",
+        "params": {
+            "protocolVersion": 1,
+            "clientCapabilities": {
+                "fs": { "readTextFile": true, "writeTextFile": true }
+            }
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "result": {
+            "protocolVersion": 1,
+            "agentCapabilities": {
+                "loadSession": true,
+                "mcpCapabilities": { "http": true, "sse": true },
+                "promptCapabilities": {
+                    "audio": false,
+                    "embeddedContext": false,
+                    "image": true
+                }
+            },
+            "authMethods": [
+                {
+                    "id": "cursor_login",
+                    "name": "Cursor Login",
+                    "description": "Authenticate using existing Cursor login credentials. Run 'agent login' first if not logged in."
+                }
+            ]
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "session/new",
+        "params": {
+            "cwd": "/home/econn/git/irishbruse-utilities",
+            "mcpServers": []
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+            "sessionId": "9a9c0774-18ef-47a2-bd14-57cdb0ae6763",
+            "modes": {
+                "currentModeId": "agent",
+                "availableModes": [
+                    {
+                        "id": "agent",
+                        "name": "Agent",
+                        "description": "Full agent capabilities with tool access"
+                    },
+                    {
+                        "id": "plan",
+                        "name": "Plan",
+                        "description": "Read-only mode for planning and designing before implementation"
+                    },
+                    {
+                        "id": "ask",
+                        "name": "Ask",
+                        "description": "Q&A mode - no edits or command execution"
+                    }
+                ]
+            },
+            "models": {
+                "currentModelId": "default[]",
+                "availableModels": [
+                    { "modelId": "default[]", "name": "Auto" },
+                    {
+                        "modelId": "composer-2[fast=true]",
+                        "name": "composer-2"
+                    },
+                    { "modelId": "composer-1.5[]", "name": "composer-1.5" },
+                    {
+                        "modelId": "gpt-5.3-codex[reasoning=medium,fast=false]",
+                        "name": "gpt-5.3-codex"
+                    },
+                    {
+                        "modelId": "gpt-5.4[reasoning=medium,context=272k,fast=false]",
+                        "name": "gpt-5.4"
+                    },
+                    {
+                        "modelId": "claude-sonnet-4-6[thinking=true,context=200k,effort=medium]",
+                        "name": "claude-sonnet-4-6"
+                    },
+                    {
+                        "modelId": "claude-opus-4-6[thinking=true,context=200k,effort=high,fast=false]",
+                        "name": "claude-opus-4-6"
+                    },
+                    {
+                        "modelId": "claude-opus-4-5[thinking=true]",
+                        "name": "claude-opus-4-5"
+                    },
+                    {
+                        "modelId": "gpt-5.2[reasoning=medium,fast=false]",
+                        "name": "gpt-5.2"
+                    },
+                    { "modelId": "gemini-3.1-pro[]", "name": "gemini-3.1-pro" },
+                    {
+                        "modelId": "gpt-5.4-mini[reasoning=medium]",
+                        "name": "gpt-5.4-mini"
+                    },
+                    {
+                        "modelId": "gpt-5.4-nano[reasoning=medium]",
+                        "name": "gpt-5.4-nano"
+                    },
+                    {
+                        "modelId": "claude-haiku-4-5[thinking=true]",
+                        "name": "claude-haiku-4-5"
+                    },
+                    {
+                        "modelId": "gpt-5.3-codex-spark[reasoning=medium]",
+                        "name": "gpt-5.3-codex-spark"
+                    },
+                    {
+                        "modelId": "grok-4-20[thinking=true]",
+                        "name": "grok-4-20"
+                    },
+                    {
+                        "modelId": "claude-sonnet-4-5[thinking=true,context=200k]",
+                        "name": "claude-sonnet-4-5"
+                    },
+                    {
+                        "modelId": "gpt-5.2-codex[reasoning=medium,fast=false]",
+                        "name": "gpt-5.2-codex"
+                    },
+                    {
+                        "modelId": "gpt-5.1-codex-max[reasoning=medium,fast=false]",
+                        "name": "gpt-5.1-codex-max"
+                    },
+                    {
+                        "modelId": "gpt-5.1[reasoning=medium]",
+                        "name": "gpt-5.1"
+                    },
+                    { "modelId": "gemini-3-flash[]", "name": "gemini-3-flash" },
+                    {
+                        "modelId": "gpt-5.1-codex-mini[reasoning=medium]",
+                        "name": "gpt-5.1-codex-mini"
+                    },
+                    {
+                        "modelId": "claude-sonnet-4[thinking=false,context=200k]",
+                        "name": "claude-sonnet-4"
+                    },
+                    { "modelId": "gpt-5-mini[]", "name": "gpt-5-mini" },
+                    {
+                        "modelId": "gemini-2.5-flash[]",
+                        "name": "gemini-2.5-flash"
+                    },
+                    { "modelId": "kimi-k2.5[]", "name": "kimi-k2.5" }
+                ]
+            },
+            "configOptions": [
+                {
+                    "id": "mode",
+                    "name": "Mode",
+                    "description": "Controls how the agent executes tasks",
+                    "category": "mode",
+                    "type": "select",
+                    "currentValue": "agent",
+                    "options": [
+                        {
+                            "value": "agent",
+                            "name": "Agent",
+                            "description": "Full agent capabilities with tool access"
+                        },
+                        {
+                            "value": "plan",
+                            "name": "Plan",
+                            "description": "Read-only mode for planning and designing before implementation"
+                        },
+                        {
+                            "value": "ask",
+                            "name": "Ask",
+                            "description": "Q&A mode - no edits or command execution"
+                        }
+                    ]
+                },
+                {
+                    "id": "model",
+                    "name": "Model",
+                    "description": "Controls which model is used for responses",
+                    "category": "model",
+                    "type": "select",
+                    "currentValue": "default[]",
+                    "options": [
+                        { "value": "default[]", "name": "Auto" },
+                        {
+                            "value": "composer-2[fast=true]",
+                            "name": "composer-2"
+                        },
+                        { "value": "composer-1.5[]", "name": "composer-1.5" },
+                        {
+                            "value": "gpt-5.3-codex[reasoning=medium,fast=false]",
+                            "name": "gpt-5.3-codex"
+                        },
+                        {
+                            "value": "gpt-5.4[reasoning=medium,context=272k,fast=false]",
+                            "name": "gpt-5.4"
+                        },
+                        {
+                            "value": "claude-sonnet-4-6[thinking=true,context=200k,effort=medium]",
+                            "name": "claude-sonnet-4-6"
+                        },
+                        {
+                            "value": "claude-opus-4-6[thinking=true,context=200k,effort=high,fast=false]",
+                            "name": "claude-opus-4-6"
+                        },
+                        {
+                            "value": "claude-opus-4-5[thinking=true]",
+                            "name": "claude-opus-4-5"
+                        },
+                        {
+                            "value": "gpt-5.2[reasoning=medium,fast=false]",
+                            "name": "gpt-5.2"
+                        },
+                        {
+                            "value": "gemini-3.1-pro[]",
+                            "name": "gemini-3.1-pro"
+                        },
+                        {
+                            "value": "gpt-5.4-mini[reasoning=medium]",
+                            "name": "gpt-5.4-mini"
+                        },
+                        {
+                            "value": "gpt-5.4-nano[reasoning=medium]",
+                            "name": "gpt-5.4-nano"
+                        },
+                        {
+                            "value": "claude-haiku-4-5[thinking=true]",
+                            "name": "claude-haiku-4-5"
+                        },
+                        {
+                            "value": "gpt-5.3-codex-spark[reasoning=medium]",
+                            "name": "gpt-5.3-codex-spark"
+                        },
+                        {
+                            "value": "grok-4-20[thinking=true]",
+                            "name": "grok-4-20"
+                        },
+                        {
+                            "value": "claude-sonnet-4-5[thinking=true,context=200k]",
+                            "name": "claude-sonnet-4-5"
+                        },
+                        {
+                            "value": "gpt-5.2-codex[reasoning=medium,fast=false]",
+                            "name": "gpt-5.2-codex"
+                        },
+                        {
+                            "value": "gpt-5.1-codex-max[reasoning=medium,fast=false]",
+                            "name": "gpt-5.1-codex-max"
+                        },
+                        {
+                            "value": "gpt-5.1[reasoning=medium]",
+                            "name": "gpt-5.1"
+                        },
+                        {
+                            "value": "gemini-3-flash[]",
+                            "name": "gemini-3-flash"
+                        },
+                        {
+                            "value": "gpt-5.1-codex-mini[reasoning=medium]",
+                            "name": "gpt-5.1-codex-mini"
+                        },
+                        {
+                            "value": "claude-sonnet-4[thinking=false,context=200k]",
+                            "name": "claude-sonnet-4"
+                        },
+                        { "value": "gpt-5-mini[]", "name": "gpt-5-mini" },
+                        {
+                            "value": "gemini-2.5-flash[]",
+                            "name": "gemini-2.5-flash"
+                        },
+                        { "value": "kimi-k2.5[]", "name": "kimi-k2.5" }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "session/prompt",
+        "params": {
+            "sessionId": "9a9c0774-18ef-47a2-bd14-57cdb0ae6763",
+            "prompt": [
+                {
+                    "type": "text",
+                    "text": "Do a quick review of the code dont go to indepth and write it to Review.md"
+                }
+            ]
+        }
+    },
+
+    {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "method": "session/request_permission",
+        "params": {
+            "sessionId": "9a9c0774-18ef-47a2-bd14-57cdb0ae6763",
+            "toolCall": {
+                "toolCallId": "tool_eaa35d54-ef79-4ca4-9ab7-52c9c4d83d4",
+                "title": "`cd /home/econn/git/irishbruse-utilities && git diff --stat HEAD 2>/dev/null | tail -30`",
+                "kind": "execute",
+                "status": "pending",
+                "content": [
+                    {
+                        "type": "content",
+                        "content": {
+                            "type": "text",
+                            "text": "Not in allowlist: git diff --stat HEAD, tail -30"
+                        }
+                    }
+                ]
+            },
+            "options": [
+                {
+                    "optionId": "allow-once",
+                    "name": "Allow once",
+                    "kind": "allow_once"
+                },
+                {
+                    "optionId": "allow-always",
+                    "name": "Allow always",
+                    "kind": "allow_always"
+                },
+                {
+                    "optionId": "reject-once",
+                    "name": "Reject",
+                    "kind": "reject_once"
+                }
+            ]
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 0,
+        "result": {
+            "outcome": { "outcome": "selected", "optionId": "allow-once" }
+        }
+    },
+
+    {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "session/request_permission",
+        "params": {
+            "sessionId": "9a9c0774-18ef-47a2-bd14-57cdb0ae6763",
+            "toolCall": {
+                "toolCallId": "tool_8c8c43c8-27a0-427f-9421-2a038d4489a",
+                "title": "`cd /home/econn/git/irishbruse-utilities && git diff HEAD -- src/chat/acp/acpSessionUpdateMapping.ts | head -200`",
+                "kind": "execute",
+                "status": "pending",
+                "content": [
+                    {
+                        "type": "content",
+                        "content": {
+                            "type": "text",
+                            "text": "Not in allowlist: git diff HEAD -- src/chat/acp/acpSessionUpdateMapping.ts, head -200"
+                        }
+                    }
+                ]
+            },
+            "options": [
+                {
+                    "optionId": "allow-once",
+                    "name": "Allow once",
+                    "kind": "allow_once"
+                },
+                {
+                    "optionId": "allow-always",
+                    "name": "Allow always",
+                    "kind": "allow_always"
+                },
+                {
+                    "optionId": "reject-once",
+                    "name": "Reject",
+                    "kind": "reject_once"
+                }
+            ]
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+            "outcome": { "outcome": "selected", "optionId": "allow-once" }
+        }
+    },
+
+    {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "session/request_permission",
+        "params": {
+            "sessionId": "9a9c0774-18ef-47a2-bd14-57cdb0ae6763",
+            "toolCall": {
+                "toolCallId": "tool_7f0c70a7-eb34-47e8-b06f-1dbf64e268d",
+                "title": "`cd /home/econn/git/irishbruse-utilities && git diff HEAD -- webview/ib-chat/src/IbChatApp.tsx webview/ib-chat/src/chatReducer.ts | head -250`",
+                "kind": "execute",
+                "status": "pending",
+                "content": [
+                    {
+                        "type": "content",
+                        "content": {
+                            "type": "text",
+                            "text": "Not in allowlist: git diff HEAD -- webview/ib-chat/src/IbChatApp.tsx webview/ib-chat/src/chatReducer.ts, head -250"
+                        }
+                    }
+                ]
+            },
+            "options": [
+                {
+                    "optionId": "allow-once",
+                    "name": "Allow once",
+                    "kind": "allow_once"
+                },
+                {
+                    "optionId": "allow-always",
+                    "name": "Allow always",
+                    "kind": "allow_always"
+                },
+                {
+                    "optionId": "reject-once",
+                    "name": "Reject",
+                    "kind": "reject_once"
+                }
+            ]
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+            "outcome": { "outcome": "selected", "optionId": "allow-once" }
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "method": "session/request_permission",
+        "params": {
+            "sessionId": "9a9c0774-18ef-47a2-bd14-57cdb0ae6763",
+            "toolCall": {
+                "toolCallId": "tool_7b06d68f-4555-497a-9aee-6353330aa65",
+                "title": "`cd /home/econn/git/irishbruse-utilities && git diff HEAD -- src/chat/protocol/ibChatProtocol.ts src/chat/ibChatEditor.ts src/chat/acp/acpSessionBridge.ts | head -150`",
+                "kind": "execute",
+                "status": "pending",
+                "content": [
+                    {
+                        "type": "content",
+                        "content": {
+                            "type": "text",
+                            "text": "Not in allowlist: git diff HEAD -- src/chat/protocol/ibChatProtocol.ts src/chat/ibChatEditor.ts src/chat/acp/acpSessionBridge.ts, head -150"
+                        }
+                    }
+                ]
+            },
+            "options": [
+                {
+                    "optionId": "allow-once",
+                    "name": "Allow once",
+                    "kind": "allow_once"
+                },
+                {
+                    "optionId": "allow-always",
+                    "name": "Allow always",
+                    "kind": "allow_always"
+                },
+                {
+                    "optionId": "reject-once",
+                    "name": "Reject",
+                    "kind": "reject_once"
+                }
+            ]
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "result": {
+            "outcome": { "outcome": "selected", "optionId": "allow-once" }
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "method": "session/request_permission",
+        "params": {
+            "sessionId": "9a9c0774-18ef-47a2-bd14-57cdb0ae6763",
+            "toolCall": {
+                "toolCallId": "tool_21ca3420-9d7e-44dc-b45c-bebfdcf1aa3",
+                "title": "`cd /home/econn/git/irishbruse-utilities && git diff HEAD -- webview/ib-chat/src/components/ToolCallBlock.tsx webview/ib-chat/src/components/ChatComposer.tsx | head -120`",
+                "kind": "execute",
+                "status": "pending",
+                "content": [
+                    {
+                        "type": "content",
+                        "content": {
+                            "type": "text",
+                            "text": "Not in allowlist: git diff HEAD -- webview/ib-chat/src/components/ToolCallBlock.tsx webview/ib-chat/src/components/ChatComposer.tsx, head -120"
+                        }
+                    }
+                ]
+            },
+            "options": [
+                {
+                    "optionId": "allow-once",
+                    "name": "Allow once",
+                    "kind": "allow_once"
+                },
+                {
+                    "optionId": "allow-always",
+                    "name": "Allow always",
+                    "kind": "allow_always"
+                },
+                {
+                    "optionId": "reject-once",
+                    "name": "Reject",
+                    "kind": "reject_once"
+                }
+            ]
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "result": {
+            "outcome": { "outcome": "selected", "optionId": "allow-once" }
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "method": "session/request_permission",
+        "params": {
+            "sessionId": "9a9c0774-18ef-47a2-bd14-57cdb0ae6763",
+            "toolCall": {
+                "toolCallId": "tool_236bf49a-5fad-4379-853c-1e85c7e9bee",
+                "title": "`ask \"Review.md is written. Any final points or corrections?\"`",
+                "kind": "execute",
+                "status": "pending",
+                "content": [
+                    {
+                        "type": "content",
+                        "content": {
+                            "type": "text",
+                            "text": "Not in allowlist: ask \"Review.md is written. Any final points or corrections?\""
+                        }
+                    }
+                ]
+            },
+            "options": [
+                {
+                    "optionId": "allow-once",
+                    "name": "Allow once",
+                    "kind": "allow_once"
+                },
+                {
+                    "optionId": "allow-always",
+                    "name": "Allow always",
+                    "kind": "allow_always"
+                },
+                {
+                    "optionId": "reject-once",
+                    "name": "Reject",
+                    "kind": "reject_once"
+                }
+            ]
+        }
+    },
+    {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "result": {
+            "outcome": { "outcome": "selected", "optionId": "allow-once" }
+        }
+    },
+
+    { "jsonrpc": "2.0", "id": 2, "result": { "stopReason": "end_turn" } }
+]

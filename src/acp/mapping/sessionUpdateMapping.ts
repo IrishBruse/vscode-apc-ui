@@ -489,7 +489,7 @@ function pathHintFromStructuredUnknown(raw: unknown): string | undefined {
     }
     if (raw !== null && typeof raw === "object" && !Array.isArray(raw)) {
         const record = raw as Record<string, unknown>;
-        const nested = record["_meta"];
+        const nested = record._meta;
         if (
             nested !== null &&
             typeof nested === "object" &&
@@ -731,8 +731,6 @@ export function sessionUpdateToWebviewMessages(
                     })),
                 },
             ];
-        case "agent_thought_chunk":
-        case "user_message_chunk":
         default:
             return [];
     }
