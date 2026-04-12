@@ -59,16 +59,39 @@
                         {
                             "name": "Cursor",
                             "command": "agent",
-                            "args": ["acp"]
+                            "args": [
+                                "acp"
+                            ]
                         },
                         {
                             "name": "Gemini",
                             "command": "gemini",
-                            "args": ["--acp"]
+                            "args": [
+                                "--acp"
+                            ]
                         }
                     ]
                 }
             }
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "ibChatContainer",
+                    "title": "IB Chat",
+                    "icon": "media/chat_icon.svg"
+                }
+            ]
+        },
+        "views": {
+            "ibChatContainer": [
+                {
+                    "id": "ibChatSessionsView",
+                    "name": "Chats",
+                    "type": "tree",
+                    "icon": "media/chat_icon.svg"
+                }
+            ]
         },
         "commands": [
             {
@@ -77,11 +100,70 @@
                 "category": "IrishBruse ACP"
             },
             {
+                "command": "ib-acp.focusIbChatSessions",
+                "title": "Focus IB Chat Chats list",
+                "shortTitle": "Focus Chats list",
+                "category": "IrishBruse ACP"
+            },
+            {
+                "command": "ib-acp.newIbChatInEditor",
+                "title": "New IB Chat in Editor",
+                "shortTitle": "New in Editor",
+                "icon": "$(add)",
+                "category": "IrishBruse ACP"
+            },
+            {
+                "command": "ib-acp.refreshIbChatSessions",
+                "title": "Refresh IB Chat list",
+                "shortTitle": "Refresh",
+                "icon": "$(refresh)",
+                "category": "IrishBruse ACP"
+            },
+            {
+                "command": "ib-acp.openIbChatSession",
+                "title": "Open IB Chat session",
+                "shortTitle": "Open",
+                "category": "IrishBruse ACP"
+            },
+            {
+                "command": "ib-acp.deleteIbChatSession",
+                "title": "Delete IB Chat",
+                "shortTitle": "Delete",
+                "icon": "$(trash)",
+                "category": "IrishBruse ACP"
+            },
+            {
                 "command": "ib-acp.showAcpRpcLog",
                 "title": "Show ACP RPC Log",
                 "category": "IrishBruse ACP"
             }
-        ]
+        ],
+        "menus": {
+            "view/item/context": [
+                {
+                    "command": "ib-acp.deleteIbChatSession",
+                    "when": "view == ibChatSessionsView && viewItem == session",
+                    "group": "inline"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "ib-acp.refreshIbChatSessions",
+                    "when": "view == ibChatSessionsView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "ib-acp.showAcpRpcLog",
+                    "when": "view == ibChatSessionsView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "ib-acp.newIbChatInEditor",
+                    "when": "view == ibChatSessionsView",
+                    "group": "navigation"
+                }
+            ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run package",

@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import {
     type ExtensionContext,
     ViewColumn,
@@ -7,6 +6,7 @@ import {
     workspace,
 } from "vscode";
 import {
+    type AcpAgentConfig,
     getAcpAgentConfigByName,
     getAcpAgentConfigsFromSettings,
 } from "../acp/config/vscodeSettingsAgents";
@@ -16,40 +16,56 @@ import type { ExtensionToWebviewMessage } from "../protocol/extensionHostMessage
 import { tryParseWebviewMessage } from "../protocol/extensionHostMessages";
 import { registerCommandIB } from "../utils/vscode";
 import { getIbAcpExtensionActivation } from "./extensionServices";
+import { pickAcpAgentConfig } from "./ibChatAgentPicker";
+import {
+    getIbChatPromptHistoryEntries,
+    setIbChatPromptHistoryEntries,
+} from "./ibChatPromptHistoryMemento";
+import {
+    addIbChatSession,
+    listIbChatSessions,
+    setActiveIbChatSessionId,
+    setIbChatSessionAgentName,
+} from "./ibChatSessionsStore";
 import { getIbChatWebviewHtml } from "./ibChatWebviewShell";
 
 const editorViewType = "ibAcpIbChatEditor";
 
-let activePanel: WebviewPanel | undefined;
-let activeSessionId: string | undefined;
-let bridge: AcpSessionBridge | undefined;
-let pendingModelId: string | undefined;
-let selectedAgentName: string | undefined;
+const panelsBySessionId = new Map<string, WebviewPanel>();
+const bridgesBySessionId = new Map<string, AcpSessionBridge>();
+const pendingModelIdBySessionId = new Map<string, string>();
+const agentConfigBySessionId = new Map<string, AcpAgentConfig | undefined>();
 
-function disposeBridge(): void {
+function disposeBridgeForSession(sessionId: string): void {
+    const bridge = bridgesBySessionId.get(sessionId);
     if (bridge !== undefined) {
         bridge.dispose();
-        bridge = undefined;
+        bridgesBySessionId.delete(sessionId);
     }
 }
 
-function postToActivePanel(msg: ExtensionToWebviewMessage): void {
-    if (activePanel !== undefined) {
-        void activePanel.webview.postMessage(msg);
+function postForSession(
+    sessionId: string,
+    msg: ExtensionToWebviewMessage,
+): void {
+    const panel = panelsBySessionId.get(sessionId);
+    if (panel !== undefined) {
+        void panel.webview.postMessage(msg);
     }
 }
 
-async function ensureBridgeConnected(): Promise<AcpSessionBridge | undefined> {
-    if (bridge !== undefined) {
-        return bridge;
+async function ensureBridgeConnected(
+    sessionId: string,
+): Promise<AcpSessionBridge | undefined> {
+    const existing = bridgesBySessionId.get(sessionId);
+    if (existing !== undefined) {
+        return existing;
     }
-    const configs = getAcpAgentConfigsFromSettings();
     const config =
-        (selectedAgentName !== undefined
-            ? getAcpAgentConfigByName(selectedAgentName)
-            : undefined) ?? configs[0];
+        agentConfigBySessionId.get(sessionId) ??
+        getAcpAgentConfigsFromSettings()[0];
     if (config === undefined) {
-        postToActivePanel({
+        postForSession(sessionId, {
             type: "error",
             message:
                 "No ACP agents configured. Add entries to the ib-acp.agents setting (name, command, optional args).",
@@ -58,46 +74,47 @@ async function ensureBridgeConnected(): Promise<AcpSessionBridge | undefined> {
     }
     const { rpcNdjsonSink } = getIbAcpExtensionActivation();
     const host = createDefaultAcpSessionHostRuntime(rpcNdjsonSink);
-    const next = new AcpSessionBridge(config, postToActivePanel, host);
-    bridge = next;
-    const preferred = pendingModelId;
-    pendingModelId = undefined;
+    const bridge = new AcpSessionBridge(
+        config,
+        (msg) => postForSession(sessionId, msg),
+        host,
+    );
+    bridgesBySessionId.set(sessionId, bridge);
+    const preferred = pendingModelIdBySessionId.get(sessionId);
+    pendingModelIdBySessionId.delete(sessionId);
     try {
-        await next.connect(preferred);
-        return next;
+        await bridge.connect(preferred);
+        return bridge;
     } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        postToActivePanel({
+        postForSession(sessionId, {
             type: "error",
             message: `Failed to connect to agent: ${message}`,
         });
-        disposeBridge();
+        bridge.dispose();
+        bridgesBySessionId.delete(sessionId);
         return undefined;
     }
 }
 
 /**
- * Registers **IB Chat: Open** and opens the editor tab backed by the same React bundle and
- * {@link AcpSessionBridge} as the standalone Vite app.
+ * Reveals an existing editor webview for the session or creates one with the given title.
  */
-export function registerIbChatPanel(context: ExtensionContext): void {
-    registerCommandIB(
-        "ib-acp.openChat",
-        () => openIbChatPanel(context),
-        context,
-    );
-}
-
-export function openIbChatPanel(context: ExtensionContext): void {
-    if (activePanel !== undefined) {
-        activePanel.reveal(ViewColumn.Active);
+export function openOrRevealIbChatEditor(
+    context: ExtensionContext,
+    sessionId: string,
+    title: string,
+    agentConfig?: AcpAgentConfig,
+): void {
+    const existing = panelsBySessionId.get(sessionId);
+    if (existing !== undefined) {
+        existing.reveal(ViewColumn.Active);
         return;
     }
-    const sessionId = randomUUID();
-    activeSessionId = sessionId;
+    agentConfigBySessionId.set(sessionId, agentConfig);
     const panel = window.createWebviewPanel(
         editorViewType,
-        "IB Chat",
+        title,
         ViewColumn.Active,
         {
             enableScripts: true,
@@ -109,19 +126,10 @@ export function openIbChatPanel(context: ExtensionContext): void {
         context.extensionUri,
         panel.webview,
     );
-    activePanel = panel;
-    wirePanel(context, panel);
-    context.subscriptions.push(panel);
-}
 
-function wirePanel(context: ExtensionContext, panel: WebviewPanel): void {
-    panel.onDidDispose(() => {
-        if (activePanel === panel) {
-            activePanel = undefined;
-            activeSessionId = undefined;
-        }
-        disposeBridge();
-    });
+    const post = (msg: ExtensionToWebviewMessage): void => {
+        void panel.webview.postMessage(msg);
+    };
 
     panel.webview.onDidReceiveMessage((message: unknown) => {
         const parsed = tryParseWebviewMessage(message);
@@ -139,39 +147,40 @@ function wirePanel(context: ExtensionContext, panel: WebviewPanel): void {
             const folder = workspace.workspaceFolders?.[0];
             const workspaceLabel =
                 folder !== undefined ? folder.uri.fsPath : undefined;
-            const availableNames = getAcpAgentConfigsFromSettings().map(
-                (c) => c.name,
-            );
             const configs = getAcpAgentConfigsFromSettings();
-            const defaultAgent = configs[0];
-            if (selectedAgentName === undefined && defaultAgent !== undefined) {
-                selectedAgentName = defaultAgent.name;
-            }
+            const availableNames = configs.map((c) => c.name);
+            const defaultAgent = agentConfig ?? configs[0];
+            const promptHistory = getIbChatPromptHistoryEntries(
+                context,
+                sessionId,
+            );
             const initPayload: ExtensionToWebviewMessage = {
                 type: "init",
-                sessionId: activeSessionId ?? "ib-acp",
-                title: "IB Chat",
+                sessionId,
+                title,
                 workspaceLabel,
                 agentVersionLabel,
-                acpAgentName: selectedAgentName,
+                acpAgentName: defaultAgent?.name,
                 ...(availableNames.length > 0
                     ? { availableAcpAgents: availableNames }
                     : {}),
+                ...(promptHistory.length > 0 ? { promptHistory } : {}),
             };
             void Promise.resolve().then(() => {
-                void panel.webview.postMessage(initPayload);
-                void ensureBridgeConnected();
+                void post(initPayload);
+                void ensureBridgeConnected(sessionId);
             });
             return;
         }
 
         if (parsed.type === "savePromptHistory") {
+            setIbChatPromptHistoryEntries(context, sessionId, parsed.entries);
             return;
         }
 
         if (parsed.type === "send") {
             void (async () => {
-                const b = await ensureBridgeConnected();
+                const b = await ensureBridgeConnected(sessionId);
                 if (b !== undefined) {
                     await b.prompt(parsed.body);
                 }
@@ -180,25 +189,26 @@ function wirePanel(context: ExtensionContext, panel: WebviewPanel): void {
         }
 
         if (parsed.type === "cancel") {
-            void bridge?.cancel();
+            void bridgesBySessionId.get(sessionId)?.cancel();
             return;
         }
 
         if (parsed.type === "setSessionModel") {
             void (async () => {
-                if (bridge !== undefined) {
+                const b = bridgesBySessionId.get(sessionId);
+                if (b !== undefined) {
                     try {
-                        await bridge.setSessionModel(parsed.modelId);
+                        await b.setSessionModel(parsed.modelId);
                     } catch (err: unknown) {
-                        const message =
+                        const msg =
                             err instanceof Error ? err.message : String(err);
-                        void panel.webview.postMessage({
+                        post({
                             type: "error",
-                            message: `Model change failed: ${message}`,
+                            message: `Model change failed: ${msg}`,
                         });
                     }
                 } else {
-                    pendingModelId = parsed.modelId;
+                    pendingModelIdBySessionId.set(sessionId, parsed.modelId);
                 }
             })();
             return;
@@ -207,27 +217,83 @@ function wirePanel(context: ExtensionContext, panel: WebviewPanel): void {
         if (parsed.type === "setSessionAgent") {
             const config = getAcpAgentConfigByName(parsed.agentName);
             if (config === undefined) {
-                void panel.webview.postMessage({
+                post({
                     type: "error",
                     message: `Unknown agent: ${parsed.agentName}`,
                 });
                 return;
             }
-            selectedAgentName = config.name;
-            disposeBridge();
-            pendingModelId = undefined;
+            agentConfigBySessionId.set(sessionId, config);
+            setIbChatSessionAgentName(sessionId, config.name);
+            disposeBridgeForSession(sessionId);
+            pendingModelIdBySessionId.delete(sessionId);
             const names = getAcpAgentConfigsFromSettings().map((c) => c.name);
-            void panel.webview.postMessage({
+            post({
                 type: "acpAgentSelection",
                 currentAgentName: config.name,
                 availableAgentNames: names,
             });
-            void ensureBridgeConnected();
+            void ensureBridgeConnected(sessionId);
             return;
         }
 
         if (parsed.type === "permissionResponse") {
-            bridge?.handlePermissionResponse(parsed);
+            bridgesBySessionId.get(sessionId)?.handlePermissionResponse(parsed);
         }
     });
+
+    panel.onDidDispose(() => {
+        panelsBySessionId.delete(sessionId);
+        agentConfigBySessionId.delete(sessionId);
+        disposeBridgeForSession(sessionId);
+        pendingModelIdBySessionId.delete(sessionId);
+    });
+
+    panelsBySessionId.set(sessionId, panel);
+    context.subscriptions.push(panel);
+}
+
+/**
+ * Closes the editor webview for a session if it is open.
+ */
+export function disposeIbChatEditorForSession(sessionId: string): void {
+    const panel = panelsBySessionId.get(sessionId);
+    panel?.dispose();
+}
+
+/**
+ * Registers IB Chat commands. Pass {@link refreshChatsList} from {@link IbChatSessionsViewProvider.activate}
+ * so new chats update the sidebar tree.
+ */
+export function registerIbChatPanel(
+    context: ExtensionContext,
+    refreshChatsList: () => void,
+): void {
+    registerCommandIB(
+        "ib-acp.openChat",
+        () => void openNewIbChat(context, refreshChatsList),
+        context,
+    );
+    registerCommandIB(
+        "ib-acp.newIbChatInEditor",
+        () => void openNewIbChat(context, refreshChatsList),
+        context,
+    );
+}
+
+async function openNewIbChat(
+    context: ExtensionContext,
+    refreshChatsList: () => void,
+): Promise<void> {
+    const agentConfig = await pickAcpAgentConfig();
+    if (agentConfig === undefined) {
+        return;
+    }
+    const nextIndex = listIbChatSessions().length + 1;
+    const created = addIbChatSession(`Chat ${nextIndex}`, {
+        agentName: agentConfig.name,
+    });
+    setActiveIbChatSessionId(created.id);
+    openOrRevealIbChatEditor(context, created.id, created.title, agentConfig);
+    refreshChatsList();
 }
