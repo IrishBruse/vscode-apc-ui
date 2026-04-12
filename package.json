@@ -1,0 +1,94 @@
+{
+    "name": "ib-acp",
+    "displayName": "IrishBruse ACP",
+    "description": "Agent Client Protocol (ACP) integration for VS Code — extracted from irishbruse-utilities with a layered architecture for extension and webview hosts.",
+    "publisher": "irishbruse",
+    "author": "Ethan Conneely",
+    "version": "0.0.1",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.115.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "IrishBruse ACP",
+            "properties": {
+                "ib-acp.agents": {
+                    "type": "array",
+                    "description": "ACP agent configurations. Each entry defines an agent subprocess to launch (same shape as ib-utilities.acpAgents during migration).",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "command"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Display name for the agent."
+                            },
+                            "command": {
+                                "type": "string",
+                                "description": "Executable to spawn (e.g. 'npx', 'gemini', 'claude')."
+                            },
+                            "args": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "description": "Arguments passed to the command."
+                            },
+                            "env": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "description": "Extra environment variables for the agent process."
+                            }
+                        }
+                    },
+                    "default": []
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "ib-acp.showAcpRpcLog",
+                "title": "Show ACP RPC Log",
+                "category": "IrishBruse ACP"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run package",
+        "build": "node esbuild.mjs",
+        "watch": "node esbuild.mjs --watch",
+        "package": "node esbuild.mjs --production",
+        "check": "tsc --noEmit",
+        "test": "vitest run",
+        "lint": "biome check .",
+        "lint:fix": "biome check --write .",
+        "format": "biome format --write .",
+        "verify": "npm run build && npm run check && npm run test && npm run lint"
+    },
+    "dependencies": {
+        "@agentclientprotocol/sdk": "^0.18.2"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.4.11",
+        "@types/node": "^24.12.2",
+        "@types/vscode": "^1.115.0",
+        "@vscode/vsce": "^3.7.1",
+        "esbuild": "^0.28.0",
+        "typescript": "^6.0.2",
+        "vitest": "^4.1.0"
+    }
+}
