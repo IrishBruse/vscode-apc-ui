@@ -27,7 +27,6 @@ export type IbChatSlashCommand = {
 
 /**
  * Messages sent from a webview (or other UI host) to the extension host.
- * Migrated from `irishbruse-utilities` `ibChatProtocol.ts`.
  */
 export type WebviewToExtensionMessage =
     | { type: "ready" }

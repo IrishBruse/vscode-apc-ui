@@ -57,7 +57,7 @@ if (rpcLogPath !== null) {
     console.log(`ACP JSON-RPC log: ${rpcLogPath}`);
 }
 
-// ── Fixture playback (same behavior as irishbruse-utilities standalone) ─────
+// ── Fixture playback (recorded NDJSON sessions) ─────────────────────────────
 
 type JsonRpcNotification = { jsonrpc: "2.0"; method: string; params: unknown };
 type JsonRpcResponse = {

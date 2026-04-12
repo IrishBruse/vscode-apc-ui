@@ -11,7 +11,7 @@ export function setIbAcpExtensionActivation(
 
 /**
  * Shared extension-host services (RPC NDJSON sink, output channel) for UI features that compose
- * `AcpSessionBridge` after migrating from `irishbruse-utilities`.
+ * `AcpSessionBridge` from UI entrypoints.
  */
 export function getIbAcpExtensionActivation(): IbAcpExtensionActivation {
     if (activation === undefined) {

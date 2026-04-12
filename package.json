@@ -23,7 +23,7 @@
             "properties": {
                 "ib-acp.agents": {
                     "type": "array",
-                    "description": "ACP agent configurations. Each entry defines an agent subprocess to launch (same shape as ib-utilities.acpAgents during migration).",
+                    "description": "ACP agent configurations. Each entry defines an agent subprocess to launch.",
                     "items": {
                         "type": "object",
                         "required": [
@@ -55,7 +55,18 @@
                             }
                         }
                     },
-                    "default": []
+                    "default": [
+                        {
+                            "name": "Cursor",
+                            "command": "agent",
+                            "args": ["acp"]
+                        },
+                        {
+                            "name": "Gemini",
+                            "command": "gemini",
+                            "args": ["--acp"]
+                        }
+                    ]
                 }
             }
         },

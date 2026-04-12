@@ -15,8 +15,7 @@ export type IbAcpExtensionActivation = {
 };
 
 /**
- * Registers the ACP RPC output channel, on-disk NDJSON log, and commands used while migrating
- * chat UI from `irishbruse-utilities`.
+ * Registers the ACP RPC output channel, on-disk NDJSON log, and related commands.
  */
 export function activateIbAcpExtension(
     context: ExtensionContext,
