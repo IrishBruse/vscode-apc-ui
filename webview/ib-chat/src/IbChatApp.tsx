@@ -358,7 +358,7 @@ function composerActivityLabel(
                 return "Reading…";
             }
             if (k === "edit") {
-                return "Editing…";
+                return "Writing…";
             }
             if (k === "search") {
                 return "Searching…";

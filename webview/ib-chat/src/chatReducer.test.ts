@@ -19,6 +19,7 @@ describe("chatReducer", () => {
             return;
         }
         expect(before.title).toBe("Tool");
+        expect(before.kind).toBeUndefined();
         state = chatReducer(state, {
             type: "appendToolCall",
             toolCallId: "early",
@@ -36,5 +37,28 @@ describe("chatReducer", () => {
         expect(after.title).toBe("Run command");
         expect(after.kind).toBe("execute");
         expect(after.subtitle).toBe("npm test");
+    });
+
+    it("labels edit tools as Write File when only updateToolCall arrives (Gemini-style)", () => {
+        let state = createInitialChatState();
+        state = chatReducer(state, {
+            type: "updateToolCall",
+            toolCallId: "write-1",
+            status: "completed",
+            kind: "edit",
+            subtitle: "/home/econn/git/irishbruse-acp/test.txt",
+            diffRows: [
+                { kind: "added", text: "hello world" },
+            ],
+        });
+        expect(state.trace).toHaveLength(1);
+        const row = state.trace[0];
+        expect(row?.type).toBe("tool");
+        if (row?.type !== "tool") {
+            return;
+        }
+        expect(row.title).toBe("Write File");
+        expect(row.kind).toBe("edit");
+        expect(row.subtitle).toContain("test.txt");
     });
 });

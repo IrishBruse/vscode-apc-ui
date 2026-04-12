@@ -130,7 +130,12 @@ export function extensionMessagesForPermissionRequest(
         {
             type: "permissionRequest",
             requestId,
-            toolTitle: toolCall.title ?? "Tool",
+            toolTitle:
+                toolCall.kind !== undefined &&
+                toolCall.kind !== null &&
+                String(toolCall.kind).toLowerCase() === "edit"
+                    ? "Write File"
+                    : (toolCall.title ?? "Tool"),
             options: params.options.map((o) => ({
                 optionId: o.optionId,
                 name: o.name,
@@ -645,11 +650,26 @@ export function sessionUpdateToWebviewMessages(
             const subtitleHint = toolCallUpdateSubtitleHint(update, {
                 pendingKind,
             });
+            const kindFromUpdate =
+                update.kind !== undefined &&
+                update.kind !== null &&
+                String(update.kind).length > 0
+                    ? String(update.kind)
+                    : undefined;
+            if (kindFromUpdate !== undefined) {
+                toolKindTracking?.kindByToolId.set(
+                    update.toolCallId,
+                    kindFromUpdate,
+                );
+            }
             return [
                 {
                     type: "updateToolCall",
                     toolCallId: update.toolCallId,
                     status: update.status ?? "completed",
+                    ...(kindFromUpdate !== undefined
+                        ? { kind: kindFromUpdate }
+                        : {}),
                     ...(parts.contentText !== undefined
                         ? { content: parts.contentText }
                         : {}),

@@ -33,6 +33,16 @@
     min-width: 0;
 }
 
+/** Groups status + command so `[execute]` stays a trailing sibling and aligns right like other kind badges. */
+.tool-call-terminal-line-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 6px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
 .tool-call-terminal-line--expandable {
     cursor: pointer;
     border-radius: 2px;

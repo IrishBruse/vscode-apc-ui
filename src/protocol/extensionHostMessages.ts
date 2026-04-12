@@ -87,6 +87,8 @@ export type ExtensionToWebviewMessage =
           content?: string;
           subtitle?: string;
           diffRows?: ToolCallDiffRow[];
+          /** From ACP `tool_call_update` when the agent omits an initial `tool_call` (e.g. Gemini CLI). */
+          kind?: string;
       }
     | {
           type: "permissionRequest";

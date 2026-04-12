@@ -256,34 +256,46 @@ export function ToolCallBlock({
                         : undefined
                 }
             >
-                <ToolCallStatusGlyph status={item.status} />
                 {item.kind === "execute" ? (
-                    <span className="tool-call-terminal-title tool-call-terminal-title--execute">
-                        {executeCommandLine === null ? (
-                            "Terminal"
-                        ) : (
-                            <>
-                                <span
-                                    className="tool-call-terminal-prompt tool-call-terminal-prompt--inline"
-                                    aria-hidden="true"
-                                >
-                                    $
-                                </span>
-                                <span className="tool-call-terminal-command-text">
-                                    {executeCommandLine}
-                                </span>
-                            </>
+                    <>
+                        <div className="tool-call-terminal-line-main">
+                            <ToolCallStatusGlyph status={item.status} />
+                            <span className="tool-call-terminal-title tool-call-terminal-title--execute">
+                                {executeCommandLine === null ? (
+                                    "Terminal"
+                                ) : (
+                                    <>
+                                        <span
+                                            className="tool-call-terminal-prompt tool-call-terminal-prompt--inline"
+                                            aria-hidden="true"
+                                        >
+                                            $
+                                        </span>
+                                        <span className="tool-call-terminal-command-text">
+                                            {executeCommandLine}
+                                        </span>
+                                    </>
+                                )}
+                            </span>
+                        </div>
+                        {kindHidden ? null : (
+                            <span className="tool-call-terminal-kind">
+                                [{item.kind}]
+                            </span>
                         )}
-                    </span>
+                    </>
                 ) : (
-                    <span className="tool-call-terminal-title">
-                        {item.title}
-                    </span>
-                )}
-                {kindHidden ? null : (
-                    <span className="tool-call-terminal-kind">
-                        [{item.kind}]
-                    </span>
+                    <>
+                        <ToolCallStatusGlyph status={item.status} />
+                        <span className="tool-call-terminal-title">
+                            {item.title}
+                        </span>
+                        {kindHidden ? null : (
+                            <span className="tool-call-terminal-kind">
+                                [{item.kind}]
+                            </span>
+                        )}
+                    </>
                 )}
             </div>
             {subtitle !== null ? (

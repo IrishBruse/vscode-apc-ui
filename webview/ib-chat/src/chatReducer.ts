@@ -63,6 +63,20 @@ export type ChatAction =
     | { type: "pickSessionAgent"; agentName: string }
     | { type: "clearPermissionPrompt" };
 
+const EDIT_TOOL_DISPLAY_TITLE = "Write File";
+
+/** Stable header for ACP `kind: edit` tools (file write / diff), ignoring verbose agent titles. */
+function toolDisplayTitle(
+    kind: string | undefined,
+    agentTitle: string,
+): string {
+    if (kind !== undefined && kind.toLowerCase() === "edit") {
+        return EDIT_TOOL_DISPLAY_TITLE;
+    }
+    const t = agentTitle.trim();
+    return t.length > 0 ? t : "Tool";
+}
+
 export function createInitialChatState(): ChatState {
     return {
         trace: [],
@@ -143,7 +157,10 @@ function appendToolCall(
             const trace = state.trace.slice();
             trace[existingIdx] = {
                 ...existing,
-                title,
+                title: toolDisplayTitle(
+                    kind !== undefined ? kind : existing.kind,
+                    title,
+                ),
                 kind: kind !== undefined ? kind : existing.kind,
                 status: status ?? existing.status,
                 subtitle: mergedSubtitle,
@@ -158,7 +175,7 @@ function appendToolCall(
     const newItem: TraceToolItem = {
         type: "tool",
         toolCallId,
-        title,
+        title: toolDisplayTitle(kind, title),
         kind,
         subtitle,
         status: status ?? "pending",
@@ -184,6 +201,7 @@ function updateToolCall(
     content: string | undefined,
     subtitle: string | undefined,
     diffRows: ToolCallDiffRow[] | undefined,
+    kind: string | undefined,
 ): ChatState {
     const idx = state.toolIndexById.get(toolCallId);
     if (idx !== undefined) {
@@ -203,6 +221,16 @@ function updateToolCall(
             subtitle !== undefined && subtitle.trim().length > 0
                 ? subtitle.trim()
                 : item.subtitle;
+        const mergedKind =
+            kind !== undefined && kind.trim().length > 0
+                ? kind.trim()
+                : item.kind;
+        const inferredKind =
+            mergedKind ??
+            (mergedDiffRows !== undefined && mergedDiffRows.length > 0
+                ? "edit"
+                : undefined);
+        const mergedTitle = toolDisplayTitle(inferredKind, item.title);
         const trace = state.trace.slice();
         trace[idx] = {
             ...item,
@@ -211,6 +239,8 @@ function updateToolCall(
             diffRows: mergedDiffRows,
             detailVisible,
             subtitle: mergedSubtitle,
+            kind: inferredKind,
+            title: mergedTitle,
         };
         return { ...state, trace };
     }
@@ -220,11 +250,17 @@ function updateToolCall(
     const detailVisible =
         (mergedContent !== undefined && mergedContent.trim().length > 0) ||
         (mergedDiffRows !== undefined && mergedDiffRows.length > 0);
+    const inferredKind =
+        kind !== undefined && kind.trim().length > 0
+            ? kind.trim()
+            : mergedDiffRows !== undefined && mergedDiffRows.length > 0
+              ? "edit"
+              : undefined;
     const newItem: TraceToolItem = {
         type: "tool",
         toolCallId,
-        title: "Tool",
-        kind: undefined,
+        title: toolDisplayTitle(inferredKind, ""),
+        kind: inferredKind,
         subtitle:
             subtitle !== undefined && subtitle.trim().length > 0
                 ? subtitle.trim()
@@ -322,6 +358,7 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
                 action.content,
                 action.subtitle,
                 action.diffRows,
+                action.kind,
             );
         case "slashCommands":
             return { ...state, slashCommands: action.commands };

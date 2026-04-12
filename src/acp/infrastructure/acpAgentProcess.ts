@@ -5,6 +5,15 @@ import type { AcpAgentSpawnConfig } from "../domain/agentSpawnConfig";
 import type { AcpHostFilesystem } from "../ports/hostFilesystem";
 import type { AcpRpcNdjsonSink } from "../ports/rpcNdjsonSink";
 
+/** Node `fs` and VS Code `FileSystemError` both use distinct codes for a missing path. */
+function isFileNotFoundError(error: unknown): boolean {
+    if (error === null || typeof error !== "object") {
+        return false;
+    }
+    const code = (error as { code?: string }).code;
+    return code === "ENOENT" || code === "FileNotFound";
+}
+
 /**
  * Passes bytes through while appending each complete NDJSON line to the configured sink.
  */
@@ -196,10 +205,19 @@ export class AcpAgentProcess {
     private async handleReadTextFile(
         params: acp.ReadTextFileRequest,
     ): Promise<acp.ReadTextFileResponse> {
-        const content = await this.options.hostFilesystem.readTextFile(
-            params.path,
-        );
-        return { content };
+        try {
+            const content = await this.options.hostFilesystem.readTextFile(
+                params.path,
+            );
+            return { content };
+        } catch (err) {
+            // Agents (e.g. Gemini CLI) read before write to merge edits; a missing file must
+            // behave like an empty document, not a JSON-RPC error, or create flows fail.
+            if (isFileNotFoundError(err)) {
+                return { content: "" };
+            }
+            throw err;
+        }
     }
 
     private async handleWriteTextFile(
