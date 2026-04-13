@@ -161,6 +161,7 @@ export function openOrRevealIbChatEditor(
                 workspaceLabel,
                 agentVersionLabel,
                 acpAgentName: defaultAgent?.name,
+                lockSessionAgent: true,
                 ...(availableNames.length > 0
                     ? { availableAcpAgents: availableNames }
                     : {}),
@@ -170,6 +171,14 @@ export function openOrRevealIbChatEditor(
                 void post(initPayload);
                 void ensureBridgeConnected(sessionId);
             });
+            return;
+        }
+
+        if (parsed.type === "resetSession") {
+            disposeBridgeForSession(sessionId);
+            pendingModelIdBySessionId.delete(sessionId);
+            post({ type: "sessionReset" });
+            void ensureBridgeConnected(sessionId);
             return;
         }
 

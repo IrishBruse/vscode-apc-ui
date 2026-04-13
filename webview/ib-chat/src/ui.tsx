@@ -18,7 +18,7 @@ export function mountChatView(
     init: InitPayload,
     postSend: (body: string) => void,
     postCancel: () => void,
-    postSetSessionAgent: (agentName: string) => void,
+    postResetSession: () => void,
     postSetSessionModel: (modelId: string) => void,
     postSavePromptHistory: (entries: string[]) => void,
     postPermissionResponse: (
@@ -40,7 +40,7 @@ export function mountChatView(
             init={init}
             postSend={postSend}
             postCancel={postCancel}
-            postSetSessionAgent={postSetSessionAgent}
+            postResetSession={postResetSession}
             postSetSessionModel={postSetSessionModel}
             postSavePromptHistory={postSavePromptHistory}
             postPermissionResponse={postPermissionResponse}

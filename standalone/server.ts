@@ -210,7 +210,8 @@ wss.on("connection", (ws: WebSocket) => {
 
     let bridge: AcpSessionBridge | null = null;
     let prompting = false;
-    let pendingModelId: string | null = null;
+    /** Last model chosen in the UI; applied on the next `connect` (including after `/clear`). */
+    let userPreferredModelId: string | null = null;
     let selectedAgentName = firstAgentConfig.name;
     let connectInFlight: Promise<void> | null = null;
 
@@ -242,8 +243,7 @@ wss.on("connection", (ws: WebSocket) => {
         const cfg = activeAgentConfig();
         const next = new AcpSessionBridge(cfg, send, hostRuntime);
         bridge = next;
-        const preferred = pendingModelId ?? undefined;
-        pendingModelId = null;
+        const preferred = userPreferredModelId ?? undefined;
         await next.connect(preferred);
     }
 
@@ -294,7 +294,14 @@ wss.on("connection", (ws: WebSocket) => {
                 acpAgentName: selectedAgentName,
                 availableAcpAgents: agentConfigs.map((c) => c.name),
                 sessionModels: seed ?? undefined,
+                lockSessionAgent: false,
             });
+            return;
+        }
+
+        if (parsed.type === "resetSession") {
+            disposeBridge();
+            send({ type: "sessionReset" });
             void connectAgent();
             return;
         }
@@ -314,14 +321,18 @@ wss.on("connection", (ws: WebSocket) => {
                 return;
             }
             selectedAgentName = next.name;
-            disposeBridge();
-            pendingModelId = null;
+            const hadBridge = bridge !== null;
+            if (hadBridge) {
+                disposeBridge();
+            }
             send({
                 type: "acpAgentSelection",
                 currentAgentName: next.name,
                 availableAgentNames: agentConfigs.map((c) => c.name),
             });
-            void connectAgent();
+            if (hadBridge) {
+                void connectAgent();
+            }
             return;
         }
 
@@ -330,6 +341,7 @@ wss.on("connection", (ws: WebSocket) => {
         }
 
         if (parsed.type === "setSessionModel") {
+            userPreferredModelId = parsed.modelId;
             if (bridge) {
                 try {
                     await bridge.setSessionModel(parsed.modelId);
@@ -341,8 +353,6 @@ wss.on("connection", (ws: WebSocket) => {
                         message: `Model change failed: ${message}`,
                     });
                 }
-            } else {
-                pendingModelId = parsed.modelId;
             }
             return;
         }

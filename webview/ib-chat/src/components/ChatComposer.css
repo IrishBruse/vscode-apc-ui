@@ -75,7 +75,18 @@
     color: var(--vscode-descriptionForeground);
 }
 
-.composer-agent-select,
+.composer-pick-value {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 12rem;
+    padding: 3px 7px;
+    font-size: 11px;
+    color: var(--vscode-foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .composer-model-select {
     flex: 0 1 auto;
     width: auto;

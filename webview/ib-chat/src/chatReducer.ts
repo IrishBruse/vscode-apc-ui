@@ -54,13 +54,20 @@ export type ChatState = {
     acpAgentSelection: AcpAgentSelectionState | null;
     slashCommands: IbChatSlashCommand[];
     permissionPrompt: PermissionPromptState | null;
+    /**
+     * From host init: agent was fixed when the chat was created (VS Code sidebar flow).
+     */
+    lockSessionAgent: boolean;
+    /**
+     * After the first real user message, model + agent pickers are read-only (standalone pre-flight).
+     */
+    composerPicksLocked: boolean;
 };
 
 export type ChatAction =
     | ExtensionMessageAfterInit
     | { type: "submit"; body: string }
     | { type: "pickSessionModel"; modelId: string }
-    | { type: "pickSessionAgent"; agentName: string }
     | { type: "clearPermissionPrompt" };
 
 const EDIT_TOOL_DISPLAY_TITLE = "Write File";
@@ -88,6 +95,8 @@ export function createInitialChatState(): ChatState {
         acpAgentSelection: null,
         slashCommands: [],
         permissionPrompt: null,
+        lockSessionAgent: false,
+        composerPicksLocked: false,
     };
 }
 
@@ -99,6 +108,8 @@ export function createChatStateFromInit(payload: InitPayload): ChatState {
         ...createInitialChatState(),
         modelSelection: payload.sessionModels ?? null,
         acpAgentSelection: buildAcpAgentSelectionFromInit(payload),
+        lockSessionAgent: payload.lockSessionAgent === true,
+        composerPicksLocked: false,
     };
 }
 
@@ -284,6 +295,18 @@ function updateToolCall(
 /**
  * Applies extension protocol messages and local submit actions to chat UI state.
  */
+function applySessionReset(state: ChatState): ChatState {
+    return {
+        ...state,
+        trace: [],
+        openStreamIndex: null,
+        toolIndexById: new Map(),
+        promptInFlight: false,
+        errorText: null,
+        permissionPrompt: null,
+    };
+}
+
 export function chatReducer(state: ChatState, action: ChatAction): ChatState {
     if (action.type === "submit") {
         return {
@@ -293,10 +316,14 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
             errorText: null,
             openStreamIndex: null,
             toolIndexById: new Map(),
+            composerPicksLocked:
+                state.lockSessionAgent === true
+                    ? state.composerPicksLocked
+                    : true,
         };
     }
     if (action.type === "pickSessionModel") {
-        if (state.modelSelection === null) {
+        if (state.composerPicksLocked || state.modelSelection === null) {
             return state;
         }
         return {
@@ -307,22 +334,12 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
             },
         };
     }
-    if (action.type === "pickSessionAgent") {
-        if (state.acpAgentSelection === null) {
-            return state;
-        }
-        return {
-            ...state,
-            acpAgentSelection: {
-                ...state.acpAgentSelection,
-                currentName: action.agentName,
-            },
-        };
-    }
     if (action.type === "clearPermissionPrompt") {
         return { ...state, permissionPrompt: null };
     }
     switch (action.type) {
+        case "sessionReset":
+            return applySessionReset(state);
         case "sessionModels":
             return {
                 ...state,

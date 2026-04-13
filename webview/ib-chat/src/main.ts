@@ -42,8 +42,8 @@ host.onExtensionMessage((message: ExtensionToWebviewMessage) => {
             () => {
                 host.post({ type: "cancel" });
             },
-            (agentName) => {
-                host.post({ type: "setSessionAgent", agentName });
+            () => {
+                host.post({ type: "resetSession" });
             },
             (modelId) => {
                 host.post({ type: "setSessionModel", modelId });

@@ -32,6 +32,8 @@ export type WebviewToExtensionMessage =
     | { type: "ready" }
     | { type: "send"; body: string }
     | { type: "cancel" }
+    /** Dispose the current agent session and start a fresh one (same editor / WS connection). */
+    | { type: "resetSession" }
     | { type: "setSessionModel"; modelId: string }
     | { type: "setSessionAgent"; agentName: string }
     | {
@@ -60,6 +62,11 @@ export type ExtensionToWebviewMessage =
           vscodeThemeVariables?: Record<string, string>;
           sessionModels?: IbChatSessionModelSelection;
           promptHistory?: string[];
+          /**
+           * When true, the agent picker is read-only (agent was chosen when the chat was created).
+           * The model picker may still change until the first user message in standalone mode.
+           */
+          lockSessionAgent?: boolean;
       }
     | {
           type: "sessionModels";
@@ -99,7 +106,9 @@ export type ExtensionToWebviewMessage =
     | { type: "slashCommands"; commands: IbChatSlashCommand[] }
     | { type: "appendPlan"; entries: PlanEntry[] }
     | { type: "turnComplete"; stopReason: string }
-    | { type: "error"; message: string };
+    | { type: "error"; message: string }
+    /** Clears the transcript and tool state; sent before the host reconnects the agent session. */
+    | { type: "sessionReset" };
 
 /**
  * True when `raw` is a non-null object (`typeof null === "object"` is excluded).
@@ -129,6 +138,9 @@ export function tryParseWebviewMessage(
     }
     if (messageType === "cancel") {
         return { type: "cancel" };
+    }
+    if (messageType === "resetSession") {
+        return { type: "resetSession" };
     }
     if (
         messageType === "setSessionModel" &&
