@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import "./TraceList.css";
 import type { TraceItem } from "../chatReducer";
 import { AgentMarkdown } from "./AgentMarkdown";
+import { AgentThoughtBlock } from "./AgentThoughtBlock";
 import { PlanBlock } from "./PlanBlock";
 import { ToolCallBlock } from "./ToolCallBlock";
 
@@ -41,6 +42,15 @@ export function TraceList({
                                 <AgentMarkdown text={item.text} />
                             </div>
                         </div>
+                    );
+                }
+                if (item.type === "thought") {
+                    return (
+                        <AgentThoughtBlock
+                            key={index}
+                            text={item.text}
+                            durationMs={item.durationMs}
+                        />
                     );
                 }
                 if (item.type === "tool") {

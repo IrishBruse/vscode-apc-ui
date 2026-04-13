@@ -2,6 +2,28 @@ import { describe, expect, it } from "vitest";
 import { chatReducer, createInitialChatState } from "./chatReducer";
 
 describe("chatReducer", () => {
+    it("merges appendAgentThought chunks into one thought row", () => {
+        let state = createInitialChatState();
+        state = chatReducer(state, {
+            type: "appendAgentThought",
+            text: "Considering test execution\n",
+            durationMs: 700,
+        });
+        state = chatReducer(state, {
+            type: "appendAgentThought",
+            text: "Need to validate before continuing.",
+        });
+        expect(state.trace).toHaveLength(1);
+        const row = state.trace[0];
+        expect(row?.type).toBe("thought");
+        if (row?.type !== "thought") {
+            return;
+        }
+        expect(row.durationMs).toBe(700);
+        expect(row.text).toContain("Considering test execution");
+        expect(row.text).toContain("Need to validate");
+    });
+
     it("merges appendToolCall into an existing tool row from an earlier updateToolCall", () => {
         let state = createInitialChatState();
         state = chatReducer(state, {

@@ -618,6 +618,37 @@ export function sessionUpdateToWebviewMessages(
   toolKindTracking?: ToolCallKindTracking,
 ): ExtensionToWebviewMessage[] {
   switch (update.sessionUpdate) {
+    case "agent_thought_chunk": {
+      const thoughtUpdate = update as unknown as {
+        content?: { type?: string; text?: string };
+        text?: string;
+        durationMs?: number;
+        duration_ms?: number;
+      };
+      const textFromBlock =
+        thoughtUpdate.content?.type === "text"
+          ? thoughtUpdate.content.text
+          : undefined;
+      const text = (textFromBlock ?? thoughtUpdate.text ?? "").trim();
+      if (text.length === 0) {
+        return [];
+      }
+      const durationMs =
+        typeof thoughtUpdate.durationMs === "number" &&
+        Number.isFinite(thoughtUpdate.durationMs)
+          ? thoughtUpdate.durationMs
+          : typeof thoughtUpdate.duration_ms === "number" &&
+              Number.isFinite(thoughtUpdate.duration_ms)
+            ? thoughtUpdate.duration_ms
+            : undefined;
+      return [
+        {
+          type: "appendAgentThought",
+          text,
+          ...(durationMs !== undefined ? { durationMs } : {}),
+        },
+      ];
+    }
     case "agent_message_chunk": {
       const block = update.content;
       if (block.type === "text") {
@@ -730,6 +761,8 @@ export function sessionUpdateToWebviewMessages(
         },
       ];
     default:
+      console.log();
+
       return [];
   }
 }

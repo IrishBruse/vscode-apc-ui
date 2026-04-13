@@ -1,0 +1,1 @@
+/show-thinking should toggle visability of agent_thought_chunk blocks

@@ -78,6 +78,7 @@ export type ExtensionToWebviewMessage =
           currentAgentName: string;
           availableAgentNames: string[];
       }
+    | { type: "appendAgentThought"; text: string; durationMs?: number }
     | { type: "appendAgentText"; text: string }
     | {
           type: "appendToolCall";

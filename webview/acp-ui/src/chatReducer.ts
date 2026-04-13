@@ -29,6 +29,7 @@ export type TraceToolItem = {
 
 export type TraceItem =
     | { type: "user"; text: string }
+    | { type: "thought"; text: string; durationMs?: number }
     | { type: "agent"; text: string }
     | TraceToolItem
     | { type: "plan"; entries: PlanEntry[] };
@@ -142,6 +143,43 @@ function appendAgentText(state: ChatState, text: string): ChatState {
         }
     }
     const trace = [...state.trace, { type: "agent" as const, text }];
+    return {
+        ...state,
+        trace,
+        openStreamIndex: trace.length - 1,
+    };
+}
+
+function appendAgentThought(
+    state: ChatState,
+    text: string,
+    durationMs: number | undefined,
+): ChatState {
+    const open = state.openStreamIndex;
+    if (open !== null) {
+        const existing = state.trace[open];
+        if (existing?.type === "thought") {
+            const mergedDuration =
+                durationMs !== undefined ? durationMs : existing.durationMs;
+            const trace = state.trace.slice();
+            trace[open] = {
+                type: "thought",
+                text: existing.text + text,
+                ...(mergedDuration !== undefined
+                    ? { durationMs: mergedDuration }
+                    : {}),
+            };
+            return { ...state, trace };
+        }
+    }
+    const trace = [
+        ...state.trace,
+        {
+            type: "thought" as const,
+            text,
+            ...(durationMs !== undefined ? { durationMs } : {}),
+        },
+    ];
     return {
         ...state,
         trace,
@@ -358,6 +396,8 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
             };
         case "appendAgentText":
             return appendAgentText(state, action.text);
+        case "appendAgentThought":
+            return appendAgentThought(state, action.text, action.durationMs);
         case "appendToolCall":
             return appendToolCall(
                 state,

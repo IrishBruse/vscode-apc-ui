@@ -1,5 +1,0 @@
-- Add /rename
-- Document builtin commands
-- Add f2 rename to the sidebar items.
-- Remove logging to file from vscode extension ACP RPC log file write error: Error: ENOENT: no such file or directory, open '/home/econn/.config/Code/User/globalStorage/irishbruse.ib-acp-ui/ib-acp-rpc.ndjson' {errno: -2, code: 'ENOENT', syscall: 'open', path: '/home/econn/.config/Code/User/globalStorage/irishbruse.ib-acp-ui/ib-acp-rpc.ndjson', stack: "Error: ENOENT: no such file or directory, ope…orage/irishbruse.ib-acp-ui/ib-acp-rpc.ndjson'", …}
-- Rename vscode output to `APC UI RPC`
