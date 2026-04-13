@@ -97,6 +97,7 @@
             {
                 "command": "ib-acp.openChat",
                 "title": "Open IB Chat",
+                "icon": "$(comment-discussion)",
                 "category": "IrishBruse ACP"
             },
             {
@@ -123,6 +124,7 @@
                 "command": "ib-acp.openIbChatSession",
                 "title": "Open IB Chat session",
                 "shortTitle": "Open",
+                "icon": "$(comment-discussion)",
                 "category": "IrishBruse ACP"
             },
             {

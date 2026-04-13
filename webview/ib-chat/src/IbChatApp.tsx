@@ -2,6 +2,7 @@ import "./IbChatApp.css";
 import "./scrollRegions.css";
 import {
   Fragment,
+  type DragEvent,
   type KeyboardEvent,
   type ReactElement,
   type RefObject,
@@ -25,6 +26,11 @@ import {
 import { ChatComposer } from "./components/ChatComposer";
 import { PermissionDialog } from "./components/PermissionDialog";
 import { TraceList } from "./components/TraceList";
+import {
+  appendFileMentionsToDraft,
+  collectPathsFromDataTransfer,
+  dataTransferLooksLikePathDrop,
+} from "./droppedFilePaths";
 
 export type IbChatAppProps = {
   init: InitPayload;
@@ -73,6 +79,8 @@ export function IbChatApp({
   const traceRef = useRef<HTMLElement | null>(null);
   const traceContentRef = useRef<HTMLDivElement | null>(null);
   const stickToBottomRef = useRef(true);
+  const composerTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [fileDragActive, setFileDragActive] = useState(false);
 
   const scrollTraceToBottomIfPinned = useCallback((): void => {
     const el = traceRef.current;
@@ -145,6 +153,22 @@ export function IbChatApp({
       document.removeEventListener("keydown", onDocumentKeyDown, true);
     };
   }, []);
+
+  const dropFilesDisabled =
+    state.promptInFlight || state.permissionPrompt !== null;
+
+  useEffect(() => {
+    if (!fileDragActive) {
+      return;
+    }
+    const endDragUi = (): void => {
+      setFileDragActive(false);
+    };
+    window.addEventListener("dragend", endDragUi);
+    return () => {
+      window.removeEventListener("dragend", endDragUi);
+    };
+  }, [fileDragActive]);
 
   const workspaceText =
     init.workspaceLabel !== undefined && init.workspaceLabel.length > 0
@@ -283,6 +307,55 @@ export function IbChatApp({
 
   const permission = state.permissionPrompt;
 
+  const onShellDragEnterCapture = (event: DragEvent<HTMLDivElement>): void => {
+    if (dropFilesDisabled || !dataTransferLooksLikePathDrop(event.dataTransfer)) {
+      return;
+    }
+    event.preventDefault();
+    setFileDragActive(true);
+  };
+
+  const onShellDragLeave = (event: DragEvent<HTMLDivElement>): void => {
+    if (!dataTransferLooksLikePathDrop(event.dataTransfer)) {
+      return;
+    }
+    const next = event.relatedTarget as Node | null;
+    if (next !== null && event.currentTarget.contains(next)) {
+      return;
+    }
+    setFileDragActive(false);
+  };
+
+  const onShellDragOver = (event: DragEvent<HTMLDivElement>): void => {
+    if (dropFilesDisabled || !dataTransferLooksLikePathDrop(event.dataTransfer)) {
+      return;
+    }
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+  };
+
+  const onShellDrop = (event: DragEvent<HTMLDivElement>): void => {
+    setFileDragActive(false);
+    if (dropFilesDisabled || !dataTransferLooksLikePathDrop(event.dataTransfer)) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    const root =
+      init.workspaceLabel !== undefined && init.workspaceLabel.length > 0
+        ? init.workspaceLabel
+        : undefined;
+    const paths = collectPathsFromDataTransfer(event.dataTransfer, root);
+    if (paths.length === 0) {
+      return;
+    }
+    setDraft((d) => appendFileMentionsToDraft(d, paths, root));
+    setPromptHistoryBrowse(null);
+    requestAnimationFrame(() => {
+      composerTextareaRef.current?.focus();
+    });
+  };
+
   return (
     <Fragment>
       <div
@@ -292,7 +365,17 @@ export function IbChatApp({
       >
         {state.errorText}
       </div>
-      <div className="ib-chat-shell">
+      <div
+        className={
+          fileDragActive
+            ? "ib-chat-shell ib-chat-shell--file-drag"
+            : "ib-chat-shell"
+        }
+        onDragEnterCapture={onShellDragEnterCapture}
+        onDragLeave={onShellDragLeave}
+        onDragOver={onShellDragOver}
+        onDrop={onShellDrop}
+      >
         <main
           ref={traceRef}
           className="agent-trace"
@@ -347,6 +430,7 @@ export function IbChatApp({
             onSubmit={submit}
             onCancel={postCancel}
             onKeyDown={onComposerKeyDown}
+            composerInputRef={composerTextareaRef}
           />
         </div>
       </div>

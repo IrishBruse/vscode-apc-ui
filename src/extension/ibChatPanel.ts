@@ -1,5 +1,6 @@
 import {
     type ExtensionContext,
+    ThemeIcon,
     ViewColumn,
     type WebviewPanel,
     window,
@@ -30,6 +31,9 @@ import {
 import { getIbChatWebviewHtml } from "./ibChatWebviewShell";
 
 const editorViewType = "ibAcpIbChatEditor";
+
+/** Tab / panel icon (codicon chat bubble). */
+const ibChatPanelTabIcon = new ThemeIcon("comment-discussion");
 
 const panelsBySessionId = new Map<string, WebviewPanel>();
 const bridgesBySessionId = new Map<string, AcpSessionBridge>();
@@ -108,6 +112,8 @@ export function openOrRevealIbChatEditor(
 ): void {
     const existing = panelsBySessionId.get(sessionId);
     if (existing !== undefined) {
+        existing.title = title;
+        existing.iconPath = ibChatPanelTabIcon;
         existing.reveal(ViewColumn.Active);
         return;
     }
@@ -126,6 +132,7 @@ export function openOrRevealIbChatEditor(
         context.extensionUri,
         panel.webview,
     );
+    panel.iconPath = ibChatPanelTabIcon;
 
     const post = (msg: ExtensionToWebviewMessage): void => {
         void panel.webview.postMessage(msg);

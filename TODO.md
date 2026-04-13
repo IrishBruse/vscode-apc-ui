@@ -1,1 +1,3 @@
--
+- Add the cwd path to where the thinking... is while its not being displayed
+- Remove show logs button in side panel
+- Rename ib-chat reference around the place to acp-ui

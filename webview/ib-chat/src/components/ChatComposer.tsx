@@ -1,4 +1,9 @@
-import { type KeyboardEvent, type ReactElement, useMemo } from "react";
+import {
+  type KeyboardEvent,
+  type ReactElement,
+  type RefObject,
+  useMemo,
+} from "react";
 import "./ChatComposer.css";
 import type { IbChatSessionModelSelection } from "../../../../src/acp/session/sessionModels";
 import type { IbChatSlashCommand } from "../../../../src/protocol/extensionHostMessages";
@@ -18,6 +23,8 @@ export type ChatComposerProps = {
   onSubmit: () => void;
   onCancel: () => void;
   onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
+  /** Focus target after external inserts (e.g. file drop). */
+  composerInputRef?: RefObject<HTMLTextAreaElement | null>;
 };
 
 /**
@@ -36,6 +43,7 @@ export function ChatComposer({
   onSubmit,
   onCancel,
   onKeyDown,
+  composerInputRef,
 }: ChatComposerProps): ReactElement {
   const textareaDisabled = promptInFlight || inputBlocked;
   const slashQuery = useMemo(() => {
@@ -146,6 +154,7 @@ export function ChatComposer({
           </div>
         ) : null}
         <textarea
+          ref={composerInputRef}
           className="composer-input"
           placeholder="Describe a task for the agent to do..."
           aria-label="Agent input"
@@ -158,7 +167,9 @@ export function ChatComposer({
         />
       </div>
       <div className="composer-footer">
-        <span className="composer-footer-hint-left">/ commands · @ files</span>
+        <span className="composer-footer-hint-left">
+          / commands · @ files (Hold shift to drop)
+        </span>
         <button
           type="button"
           className="composer-cancel"
