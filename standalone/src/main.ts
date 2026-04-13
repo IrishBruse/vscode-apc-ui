@@ -2,11 +2,11 @@ import type {
     ExtensionToWebviewMessage,
     WebviewToExtensionMessage,
 } from "../../src/protocol/extensionHostMessages";
-import "../../webview/ib-chat/src/global.css";
-import type { InitPayload } from "../../webview/ib-chat/src/chatReducer";
-import { type ChatView, mountChatView } from "../../webview/ib-chat/src/ui";
+import "../../webview/acp-ui/src/global.css";
+import type { InitPayload } from "../../webview/acp-ui/src/chatReducer";
+import { type ChatView, mountChatView } from "../../webview/acp-ui/src/ui";
 
-const WS_URL = `ws://${location.host}/__ib_chat_ws`;
+const WS_URL = `ws://${location.host}/__acp_ui_ws`;
 
 function standalonePromptStorageKey(
     workspaceLabel: string | undefined,

@@ -1,4 +1,3 @@
-# Tools
+# Rules
 
-- `fnm` for node management
--
+Bash command execute at the current working directory no need to cd.

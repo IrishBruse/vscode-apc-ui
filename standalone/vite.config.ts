@@ -11,7 +11,7 @@ export default defineConfig({
     server: {
         port: 5173,
         proxy: {
-            "/__ib_chat_ws": {
+            "/__acp_ui_ws": {
                 target: "ws://localhost:5174",
                 ws: true,
                 rewrite: () => "/",

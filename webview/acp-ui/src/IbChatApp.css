@@ -1,4 +1,4 @@
-.ib-chat-shell {
+.acp-ui-shell {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -8,13 +8,13 @@
     margin-inline: auto;
 }
 
-.ib-chat-shell.ib-chat-shell--file-drag {
+.acp-ui-shell.acp-ui-shell--file-drag {
     outline: 2px dashed var(--vscode-focusBorder, var(--vscode-textLink-foreground));
     outline-offset: 2px;
     border-radius: 4px;
 }
 
-.ib-chat-error {
+.acp-ui-error {
     flex-shrink: 0;
     margin-bottom: 8px;
     padding: 8px 10px;
@@ -39,7 +39,7 @@
     color: var(--vscode-foreground);
 }
 
-.ib-chat-composer-stack {
+.acp-ui-composer-stack {
     position: relative;
     flex-shrink: 0;
 }

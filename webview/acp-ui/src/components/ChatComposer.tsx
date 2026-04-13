@@ -10,6 +10,8 @@ import type { IbChatSlashCommand } from "../../../../src/protocol/extensionHostM
 
 export type ChatComposerProps = {
   activityLabel: string | null;
+  /** Shown in the activity slot when nothing is in flight (e.g. workspace cwd). */
+  workspacePathHint: string;
   modelSelection: IbChatSessionModelSelection | null;
   /** When true, model is shown as a label (standalone: after the first message). */
   modelPickerLocked: boolean;
@@ -32,6 +34,7 @@ export type ChatComposerProps = {
  */
 export function ChatComposer({
   activityLabel,
+  workspacePathHint,
   modelSelection,
   modelPickerLocked,
   promptInFlight,
@@ -73,19 +76,24 @@ export function ChatComposer({
         )?.name ?? modelSel.currentModelId)
       : "";
 
+  const inflight =
+    activityLabel !== null && activityLabel.length > 0;
+  const activityDisplay = inflight ? activityLabel : workspacePathHint;
+
   return (
     <footer className="composer-frame">
       <div className="composer-top-bar">
         <div
           className={
-            activityLabel !== null && activityLabel.length > 0
+            inflight
               ? "composer-activity composer-activity--inflight"
               : "composer-activity"
           }
           role="status"
           aria-live="polite"
+          title={inflight ? undefined : workspacePathHint}
         >
-          {activityLabel ?? ""}
+          {activityDisplay}
         </div>
         <div className="composer-top-bar-right">
           <span className="composer-inline-label">Model</span>
@@ -99,7 +107,7 @@ export function ChatComposer({
             </span>
           ) : (
             <select
-              id="ib-chat-model-select"
+              id="acp-ui-model-select"
               className="composer-model-select"
               aria-label="Model"
               value={

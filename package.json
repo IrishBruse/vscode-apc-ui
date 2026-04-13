@@ -1,5 +1,5 @@
 {
-    "name": "ib-acp",
+    "name": "ib-acp-ui",
     "displayName": "ACP UI",
     "description": "Agent Client Protocol (ACP) UI integration",
     "publisher": "irishbruse",
@@ -155,11 +155,6 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "ib-acp.showAcpRpcLog",
-                    "when": "view == ibChatSessionsView",
-                    "group": "navigation"
-                },
-                {
                     "command": "ib-acp.newIbChatInEditor",
                     "when": "view == ibChatSessionsView",
                     "group": "navigation"
@@ -169,12 +164,12 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run package",
-        "build:webview": "vite build --config webview/ib-chat/vite.config.ts",
+        "build:webview": "vite build --config webview/acp-ui/vite.config.ts",
         "dev:standalone": "concurrently --names FE,BE --prefix-colors cyan,yellow 'vite --config standalone/vite.config.ts' 'tsx --watch standalone/server.ts'",
         "build": "npm run build:webview && node esbuild.mjs",
         "watch": "node esbuild.mjs --watch",
         "package": "npm run build:webview && node esbuild.mjs --production",
-        "check": "tsc --noEmit && tsc --noEmit -p webview/ib-chat/tsconfig.json && tsc --noEmit -p standalone/tsconfig.json",
+        "check": "tsc --noEmit && tsc --noEmit -p webview/acp-ui/tsconfig.json && tsc --noEmit -p standalone/tsconfig.json",
         "test": "vitest run",
         "lint": "biome check .",
         "lint:fix": "biome check --write .",

@@ -30,9 +30,9 @@ This extension isolates **Agent Client Protocol (ACP)** concerns from presentati
 
 ## Webview and standalone dev
 
-- **`webview/ib-chat/`** — React chat UI bundled to `media/ib-chat` (`npm run build:webview`). Imports protocol types from `src/protocol/extensionHostMessages` so the same messages are used in VS Code and in the browser.
-- **`standalone/`** — Vite app (`npm run dev:standalone`) with hot reload: the browser entry in `standalone/src/main.ts` reuses `webview/ib-chat/src/ui.tsx` (`mountChatView`). A small WebSocket server (`standalone/server.ts`) speaks the same `WebviewToExtensionMessage` / `ExtensionToWebviewMessage` protocol and drives **`AcpSessionBridge`** with **`createNodeAcpSessionHostRuntime`** (`src/platform/node/`). Configure agents in `standalone/acp-agent.json`; optional NDJSON RPC log via `ACP_RPC_LOG`.
-- **VS Code** — **IrishBruse ACP: Open IB Chat** opens a `WebviewPanel` whose script is the same `media/ib-chat` bundle; the panel wires `postMessage` to **`AcpSessionBridge`** with **`createDefaultAcpSessionHostRuntime`** and the shared RPC sink from activation.
+- **`webview/acp-ui/`** — React chat UI bundled to `media/acp-ui` (`npm run build:webview`). Imports protocol types from `src/protocol/extensionHostMessages` so the same messages are used in VS Code and in the browser.
+- **`standalone/`** — Vite app (`npm run dev:standalone`) with hot reload: the browser entry in `standalone/src/main.ts` reuses `webview/acp-ui/src/ui.tsx` (`mountChatView`). A small WebSocket server (`standalone/server.ts`) speaks the same `WebviewToExtensionMessage` / `ExtensionToWebviewMessage` protocol and drives **`AcpSessionBridge`** with **`createNodeAcpSessionHostRuntime`** (`src/platform/node/`). Configure agents in `standalone/acp-agent.json`; optional NDJSON RPC log via `ACP_RPC_LOG`.
+- **VS Code** — **IrishBruse ACP: Open IB Chat** opens a `WebviewPanel` whose script is the same `media/acp-ui` bundle; the panel wires `postMessage` to **`AcpSessionBridge`** with **`createDefaultAcpSessionHostRuntime`** and the shared RPC sink from activation.
 
 ## Testing
 

@@ -18,7 +18,7 @@ if (!mount) {
 mount.className = "root agent-root";
 mount.replaceChildren();
 const bootLine = document.createElement("div");
-bootLine.className = "ib-chat-boot";
+bootLine.className = "acp-ui-boot";
 bootLine.textContent = "Connecting…";
 mount.appendChild(bootLine);
 

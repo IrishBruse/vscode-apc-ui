@@ -359,7 +359,7 @@ export function IbChatApp({
   return (
     <Fragment>
       <div
-        className="ib-chat-error"
+        className="acp-ui-error"
         role="alert"
         hidden={state.errorText === null}
       >
@@ -368,8 +368,8 @@ export function IbChatApp({
       <div
         className={
           fileDragActive
-            ? "ib-chat-shell ib-chat-shell--file-drag"
-            : "ib-chat-shell"
+            ? "acp-ui-shell acp-ui-shell--file-drag"
+            : "acp-ui-shell"
         }
         onDragEnterCapture={onShellDragEnterCapture}
         onDragLeave={onShellDragLeave}
@@ -393,7 +393,7 @@ export function IbChatApp({
             />
           </div>
         </main>
-        <div className="ib-chat-composer-stack">
+        <div className="acp-ui-composer-stack">
           {permission !== null ? (
             <PermissionDialog
               toolTitle={permission.toolTitle}
@@ -416,6 +416,7 @@ export function IbChatApp({
           ) : null}
           <ChatComposer
             activityLabel={activityLabel}
+            workspacePathHint={workspaceText}
             modelSelection={state.modelSelection}
             modelPickerLocked={state.composerPicksLocked}
             promptInFlight={state.promptInFlight}

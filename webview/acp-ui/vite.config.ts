@@ -14,11 +14,11 @@ export default defineConfig({
     build: {
         lib: {
             entry: path.join(dir, "src/main.ts"),
-            name: "IbChat",
+            name: "AcpUi",
             fileName: () => "main.js",
             formats: ["iife"],
         },
-        outDir: path.join(dir, "../../media/ib-chat"),
+        outDir: path.join(dir, "../../media/acp-ui"),
         emptyOutDir: true,
         cssCodeSplit: false,
         rollupOptions: {

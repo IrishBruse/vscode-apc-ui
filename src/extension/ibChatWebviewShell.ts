@@ -1,7 +1,7 @@
 import { Uri, type Webview } from "vscode";
 
 const webviewMediaSegment = "media";
-const webviewBundleDir = "ib-chat";
+const webviewBundleDir = "acp-ui";
 const webviewScriptName = "main.js";
 const webviewStyleName = "main.css";
 
