@@ -18,6 +18,7 @@ export function mountChatView(
     init: InitPayload,
     postSend: (body: string) => void,
     postCancel: () => void,
+    postRenameSession: (title: string) => void,
     postResetSession: () => void,
     postSetSessionModel: (modelId: string) => void,
     postSavePromptHistory: (entries: string[]) => void,
@@ -40,6 +41,7 @@ export function mountChatView(
             init={init}
             postSend={postSend}
             postCancel={postCancel}
+            postRenameSession={postRenameSession}
             postResetSession={postResetSession}
             postSetSessionModel={postSetSessionModel}
             postSavePromptHistory={postSavePromptHistory}

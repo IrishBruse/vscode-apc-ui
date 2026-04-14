@@ -439,6 +439,16 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
                 openStreamIndex: null,
             };
         }
+        case "commandFeedback": {
+            const trace = [...state.trace, { type: "agent" as const, text: action.message }];
+            return {
+                ...state,
+                trace,
+                openStreamIndex: trace.length - 1,
+                promptInFlight: false,
+                errorText: null,
+            };
+        }
         case "turnComplete":
             return {
                 ...state,

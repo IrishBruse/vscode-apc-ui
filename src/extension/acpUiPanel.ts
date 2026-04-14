@@ -24,6 +24,7 @@ import {
 import {
     addAcpUiSession,
     listAcpUiSessions,
+    renameAcpUiSession,
     setAcpUiSessionAgentName,
     setActiveAcpUiSessionId,
 } from "./acpUiSessionsStore";
@@ -39,6 +40,23 @@ const panelsBySessionId = new Map<string, WebviewPanel>();
 const bridgesBySessionId = new Map<string, AcpSessionBridge>();
 const pendingModelIdBySessionId = new Map<string, string>();
 const agentConfigBySessionId = new Map<string, AcpAgentConfig | undefined>();
+let refreshChatsListHandler: (() => void) | undefined;
+
+export function renameAcpUiSessionTitle(
+    sessionId: string,
+    nextTitle: string,
+): boolean {
+    const renamed = renameAcpUiSession(sessionId, nextTitle);
+    if (!renamed) {
+        return false;
+    }
+    const panel = panelsBySessionId.get(sessionId);
+    if (panel !== undefined) {
+        panel.title = nextTitle.trim();
+    }
+    refreshChatsListHandler?.();
+    return true;
+}
 
 function disposeBridgeForSession(sessionId: string): void {
     const bridge = bridgesBySessionId.get(sessionId);
@@ -208,6 +226,24 @@ export function openOrRevealAcpUiEditor(
             void bridgesBySessionId.get(sessionId)?.cancel();
             return;
         }
+        if (parsed.type === "renameSession") {
+            const nextTitle = parsed.title.trim();
+            if (nextTitle.length === 0) {
+                post({
+                    type: "commandFeedback",
+                    message: "Usage: /rename <new-name>",
+                });
+                return;
+            }
+            const renamed = renameAcpUiSessionTitle(sessionId, nextTitle);
+            post({
+                type: "commandFeedback",
+                message: renamed
+                    ? `Renamed chat to "${nextTitle}".`
+                    : "Rename failed for this chat.",
+            });
+            return;
+        }
 
         if (parsed.type === "setSessionModel") {
             void (async () => {
@@ -285,6 +321,7 @@ export function registerAcpUiPanel(
     context: ExtensionContext,
     refreshChatsList: () => void,
 ): void {
+    refreshChatsListHandler = refreshChatsList;
     registerCommandIB(
         "ib-acp-ui.openChat",
         () => void openNewAcpUi(context, refreshChatsList),

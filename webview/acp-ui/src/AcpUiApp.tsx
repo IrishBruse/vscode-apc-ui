@@ -36,6 +36,7 @@ export type AcpUiAppProps = {
   init: InitPayload;
   postSend: (body: string) => void;
   postCancel: () => void;
+  postRenameSession: (title: string) => void;
   postResetSession: () => void;
   postSetSessionModel: (modelId: string) => void;
   postSavePromptHistory: (entries: string[]) => void;
@@ -56,6 +57,7 @@ export function AcpUiApp({
   init,
   postSend,
   postCancel,
+  postRenameSession,
   postResetSession,
   postSetSessionModel,
   postSavePromptHistory,
@@ -76,6 +78,7 @@ export function AcpUiApp({
     restore: string;
   } | null>(null);
   const [expandAllToolOutputs, setExpandAllToolOutputs] = useState(false);
+  const [showThinkingBlocks, setShowThinkingBlocks] = useState(true);
   const traceRef = useRef<HTMLElement | null>(null);
   const traceContentRef = useRef<HTMLDivElement | null>(null);
   const stickToBottomRef = useRef(true);
@@ -195,6 +198,14 @@ export function AcpUiApp({
         name: "new",
         description: "Same as /clear — new session, empty transcript",
       },
+      {
+        name: "rename",
+        description: "Rename the current chat (usage: /rename <new-name>)",
+      },
+      {
+        name: "show-thinking",
+        description: "Toggle visibility of thought blocks",
+      },
     ];
   }, []);
 
@@ -232,6 +243,33 @@ export function AcpUiApp({
       stickToBottomRef.current = true;
       dispatch({ type: "sessionReset" });
       postResetSession();
+      return;
+    }
+    if (asCommand === "/show-thinking") {
+      setDraft("");
+      setPromptHistoryBrowse(null);
+      setShowThinkingBlocks((value) => !value);
+      dispatch({
+        type: "commandFeedback",
+        message: showThinkingBlocks
+          ? "Thought blocks hidden."
+          : "Thought blocks shown.",
+      });
+      return;
+    }
+    if (body.toLowerCase().startsWith("/rename")) {
+      const match = body.match(/^\/rename\s+(\S+)$/i);
+      if (match === null) {
+        dispatch({
+          type: "commandFeedback",
+          message: "Usage: /rename <new-name>",
+        });
+        return;
+      }
+      const nextTitle = match[1]!;
+      setDraft("");
+      setPromptHistoryBrowse(null);
+      postRenameSession(nextTitle);
       return;
     }
     setDraft("");
@@ -386,6 +424,7 @@ export function AcpUiApp({
           <div ref={traceContentRef}>
             <TraceList
               items={state.trace}
+              showThoughts={showThinkingBlocks}
               expandAllToolOutputs={expandAllToolOutputs}
               onCollapseExpandAll={() => {
                 setExpandAllToolOutputs(false);

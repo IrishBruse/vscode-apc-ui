@@ -2,7 +2,6 @@ import {
     Disposable,
     type ExtensionContext,
     type OutputChannel,
-    Uri,
     window,
 } from "vscode";
 import { VscodeAcpRpcNdjsonSink } from "../platform/vscode/vscodeRpcNdjsonSink";
@@ -15,23 +14,13 @@ export type AcpUiExtensionActivation = {
 };
 
 /**
- * Registers the ACP RPC output channel, on-disk NDJSON log, and related commands.
+ * Registers the ACP RPC output channel and related commands.
  */
 export function activateAcpUiExtension(
     context: ExtensionContext,
 ): AcpUiExtensionActivation {
-    const outputChannel = window.createOutputChannel(
-        "IrishBruse ACP RPC",
-        "json",
-    );
-    const logUri = Uri.joinPath(
-        context.globalStorageUri,
-        "ib-acp-ui-rpc.ndjson",
-    );
-    const rpcNdjsonSink = new VscodeAcpRpcNdjsonSink(
-        outputChannel,
-        logUri.fsPath,
-    );
+    const outputChannel = window.createOutputChannel("ACP UI RPC", "json");
+    const rpcNdjsonSink = new VscodeAcpRpcNdjsonSink(outputChannel, null);
     context.subscriptions.push(outputChannel);
     context.subscriptions.push(new Disposable(() => rpcNdjsonSink.dispose()));
     registerCommandIB(

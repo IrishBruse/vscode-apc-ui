@@ -32,6 +32,7 @@ export type WebviewToExtensionMessage =
     | { type: "ready" }
     | { type: "send"; body: string }
     | { type: "cancel" }
+    | { type: "renameSession"; title: string }
     /** Dispose the current agent session and start a fresh one (same editor / WS connection). */
     | { type: "resetSession" }
     | { type: "setSessionModel"; modelId: string }
@@ -106,6 +107,7 @@ export type ExtensionToWebviewMessage =
       }
     | { type: "slashCommands"; commands: AcpUiSlashCommand[] }
     | { type: "appendPlan"; entries: PlanEntry[] }
+    | { type: "commandFeedback"; message: string }
     | { type: "turnComplete"; stopReason: string }
     | { type: "error"; message: string }
     /** Clears the transcript and tool state; sent before the host reconnects the agent session. */
@@ -139,6 +141,9 @@ export function tryParseWebviewMessage(
     }
     if (messageType === "cancel") {
         return { type: "cancel" };
+    }
+    if (messageType === "renameSession" && typeof record.title === "string") {
+        return { type: "renameSession", title: record.title };
     }
     if (messageType === "resetSession") {
         return { type: "resetSession" };

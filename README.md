@@ -23,7 +23,7 @@ Open **ACP UI** from the activity bar to get a dedicated chat surface next to yo
 
   *Selecting among configured agents in the chat UI.*
 
-- **ACP RPC** output channel and optional NDJSON log for debugging protocol traffic.
+- **ACP UI RPC** output channel for debugging protocol traffic.
 - **Agent configuration** via `ib-acp-ui.agents` in settings (command, args, env per agent).
 
 ## Usage
@@ -31,6 +31,7 @@ Open **ACP UI** from the activity bar to get a dedicated chat surface next to yo
 1. Install the extension and open the **ACP UI** view in the activity bar.
 2. Use **Open ACP UI** (or **New ACP UI in Editor** from the Chats view) to start a session.
 3. Adjust agents under **Settings → Extensions → ACP UI** (`ib-acp-ui.agents`).
+4. Use composer slash commands documented in [`BUILTIN_COMMANDS.md`](BUILTIN_COMMANDS.md).
 
 ## Development
 

@@ -11,10 +11,12 @@ import { ToolCallBlock } from "./ToolCallBlock";
  */
 export function TraceList({
     items,
+    showThoughts,
     expandAllToolOutputs,
     onCollapseExpandAll,
 }: {
     items: TraceItem[];
+    showThoughts: boolean;
     expandAllToolOutputs: boolean;
     onCollapseExpandAll?: () => void;
 }): ReactElement {
@@ -45,6 +47,9 @@ export function TraceList({
                     );
                 }
                 if (item.type === "thought") {
+                    if (!showThoughts) {
+                        return null;
+                    }
                     return (
                         <AgentThoughtBlock
                             key={index}

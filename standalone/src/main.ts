@@ -132,6 +132,9 @@ host.onExtensionMessage((message: ExtensionToWebviewMessage) => {
             () => {
                 host.post({ type: "cancel" });
             },
+            (title) => {
+                host.post({ type: "renameSession", title });
+            },
             () => {
                 host.post({ type: "resetSession" });
             },

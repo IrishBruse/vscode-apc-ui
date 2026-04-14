@@ -74,3 +74,17 @@ export function setAcpUiSessionAgentName(id: string, agentName: string): void {
         row.agentName = agentName;
     }
 }
+
+/**
+ * Renames a session title.
+ * Returns true when the session exists and a non-empty title was applied.
+ */
+export function renameAcpUiSession(id: string, nextTitle: string): boolean {
+    const row = sessions.find((s) => s.id === id);
+    const title = nextTitle.trim();
+    if (row === undefined || title.length === 0) {
+        return false;
+    }
+    row.title = title;
+    return true;
+}
