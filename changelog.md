@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.2.1 - 2026-04-14
+
+- Maintenance patch release with no user-facing feature changes.
+
 ## 0.2.0 - 2026-04-14
 
 - Added built-in composer commands `/rename` and `/show-thinking`.
