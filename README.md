@@ -2,10 +2,27 @@
 
 VS Code extension that brings an **IB Chat** panel to the [Agent Client Protocol (ACP)](https://github.com/agentclientprotocol) — chat with configured agent processes from the editor.
 
+Open **IB Chat** from the activity bar to get a dedicated chat surface next to your code: the **Chats** view lists sessions, and the webview shows the running conversation with the same UI in an editor tab or side panel.
+
+![IB Chat with sidebar sessions and main conversation](docs/Fullscreen.png)
+
+*Activity bar entry, Chats sidebar, and IB Chat webview in one layout.*
+
 ## Features
 
-- **IB Chat** webview: ACP-backed chat in an editor tab or panel.
+- **IB Chat** webview: ACP-backed chat in an editor tab or panel (see above). The composer and quick actions live along the bottom of the panel:
+
+  ![Composer and input area](./docs/Input.png)
+
+  *Prompt field, attachments, and controls at the foot of IB Chat.*
+
 - **Chats** sidebar under the **IB Chat** activity bar: list sessions, open, refresh, delete.
+- **Agent picker**: choose which configured agent backs the current chat (agents come from `ib-acp.agents`):
+
+  ![Agent picker](docs/Agent%20Picker.png)
+
+  *Selecting among configured agents in the chat UI.*
+
 - **ACP RPC** output channel and optional NDJSON log for debugging protocol traffic.
 - **Agent configuration** via `ib-acp.agents` in settings (command, args, env per agent).
 
