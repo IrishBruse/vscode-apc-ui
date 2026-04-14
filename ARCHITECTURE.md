@@ -20,11 +20,11 @@ This extension isolates **Agent Client Protocol (ACP)** concerns from presentati
 
 7. **`platform/vscode/`** — Adapters: `createVscodeAcpHostFilesystem`, `VscodeAcpRpcNdjsonSink`, `createDefaultAcpSessionHostRuntime`.
 
-8. **`extension/`** — Activation wiring (output channel, commands). This is the **composition root** for the VS Code host. `extensionServices.ts` exposes `getIbAcpExtensionActivation()` so migrated UI code can share the same RPC NDJSON sink and output channel without module-level globals.
+8. **`extension/`** — Activation wiring (output channel, commands). This is the **composition root** for the VS Code host. `extensionServices.ts` exposes `getAcpUiExtensionActivation()` so migrated UI code can share the same RPC NDJSON sink and output channel without module-level globals.
 
 ## Migration notes
 
-- Settings use **`ib-acp.agents`**: each entry has `name`, `command`, optional `args`, optional `env`.
+- Settings use **`ib-acp-ui.agents`**: each entry has `name`, `command`, optional `args`, optional `env`.
 - Import the stable barrel **`./acp`** (or `src/acp/index.ts`) from feature code instead of deep relative paths.
 - UI code should construct **`AcpSessionBridge`** with `createDefaultAcpSessionHostRuntime(rpcNdjsonSink)` so stdio taps and FS behavior stay consistent with the RPC log.
 

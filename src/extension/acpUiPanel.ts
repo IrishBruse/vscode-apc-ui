@@ -28,9 +28,9 @@ import {
     setActiveAcpUiSessionId,
 } from "./acpUiSessionsStore";
 import { getAcpUiWebviewHtml } from "./acpUiWebviewShell";
-import { getIbAcpExtensionActivation } from "./extensionServices";
+import { getAcpUiExtensionActivation } from "./extensionServices";
 
-const editorViewType = "ibAcpAcpUiEditor";
+const editorViewType = "ibAcpUiWebviewEditor";
 
 /** Tab / panel icon (codicon chat bubble). */
 const acpUiPanelTabIcon = new ThemeIcon("comment-discussion");
@@ -72,11 +72,11 @@ async function ensureBridgeConnected(
         postForSession(sessionId, {
             type: "error",
             message:
-                "No ACP agents configured. Add entries to the ib-acp.agents setting (name, command, optional args).",
+                "No ACP agents configured. Add entries to the ib-acp-ui.agents setting (name, command, optional args).",
         });
         return undefined;
     }
-    const { rpcNdjsonSink } = getIbAcpExtensionActivation();
+    const { rpcNdjsonSink } = getAcpUiExtensionActivation();
     const host = createDefaultAcpSessionHostRuntime(rpcNdjsonSink);
     const bridge = new AcpSessionBridge(
         config,
@@ -286,12 +286,12 @@ export function registerAcpUiPanel(
     refreshChatsList: () => void,
 ): void {
     registerCommandIB(
-        "ib-acp.openChat",
+        "ib-acp-ui.openChat",
         () => void openNewAcpUi(context, refreshChatsList),
         context,
     );
     registerCommandIB(
-        "ib-acp.newAcpUiInEditor",
+        "ib-acp-ui.newAcpUiInEditor",
         () => void openNewAcpUi(context, refreshChatsList),
         context,
     );

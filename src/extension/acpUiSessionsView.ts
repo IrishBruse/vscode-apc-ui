@@ -29,10 +29,10 @@ import {
 
 const viewIdAcpUiSessions = "acpUiSessionsView";
 
-const cmdFocusAcpUiSessions = "ib-acp.focusAcpUiSessions";
-const cmdRefreshAcpUiSessions = "ib-acp.refreshAcpUiSessions";
-const cmdOpenAcpUiSession = "ib-acp.openAcpUiSession";
-const cmdDeleteAcpUiSession = "ib-acp.deleteAcpUiSession";
+const cmdFocusAcpUiSessions = "ib-acp-ui.focusAcpUiSessions";
+const cmdRefreshAcpUiSessions = "ib-acp-ui.refreshAcpUiSessions";
+const cmdOpenAcpUiSession = "ib-acp-ui.openAcpUiSession";
+const cmdDeleteAcpUiSession = "ib-acp-ui.deleteAcpUiSession";
 
 const iconChat = "comment-discussion";
 

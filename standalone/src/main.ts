@@ -15,7 +15,7 @@ function standalonePromptStorageKey(
         workspaceLabel !== undefined && workspaceLabel.trim().length > 0
             ? workspaceLabel.trim()
             : "default";
-    return `ib-acp.standalone.promptHistory:${base}`;
+    return `ib-acp-ui.standalone.promptHistory:${base}`;
 }
 
 function loadStandalonePromptHistory(

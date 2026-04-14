@@ -9,6 +9,6 @@ Stop writing ACP RPC logs to disk to avoid ENOENT failures in user global storag
 - Ensure extension startup and RPC operations do not depend on log file creation.
 
 ## Acceptance Criteria
-- No attempts are made to open/write `ib-acp-rpc.ndjson`.
+- No attempts are made to open/write `ib-acp-ui-rpc.ndjson`.
 - ENOENT log-file errors no longer occur during extension use.
 - Core RPC behavior remains unchanged.

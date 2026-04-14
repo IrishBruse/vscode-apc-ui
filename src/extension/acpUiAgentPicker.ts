@@ -14,7 +14,7 @@ export async function pickAcpAgentConfig(): Promise<
     const configs = getAcpAgentConfigsFromSettings();
     if (configs.length === 0) {
         void window.showInformationMessage(
-            "No ACP agents configured. Add entries to ib-acp.agents in settings.",
+            "No ACP agents configured. Add entries to ib-acp-ui.agents in settings.",
         );
         return undefined;
     }

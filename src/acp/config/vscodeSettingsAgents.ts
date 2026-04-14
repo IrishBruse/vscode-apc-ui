@@ -6,7 +6,7 @@ import {
 
 export type AcpAgentConfig = AcpAgentSpawnConfig;
 
-const settingKey = "ib-acp.agents";
+const settingKey = "ib-acp-ui.agents";
 
 /** Reads ACP agent configurations from VS Code user/workspace settings. */
 export function getAcpAgentConfigsFromSettings(): AcpAgentConfig[] {

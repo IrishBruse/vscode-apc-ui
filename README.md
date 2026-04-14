@@ -17,20 +17,20 @@ Open **ACP UI** from the activity bar to get a dedicated chat surface next to yo
   *Prompt field, attachments, and controls at the foot of ACP UI.*
 
 - **Chats** sidebar under the **ACP UI** activity bar: list sessions, open, refresh, delete.
-- **Agent picker**: choose which configured agent backs the current chat (agents come from `ib-acp.agents`):
+- **Agent picker**: choose which configured agent backs the current chat (agents come from `ib-acp-ui.agents`):
 
   ![Agent picker](docs/Agent%20Picker.png)
 
   *Selecting among configured agents in the chat UI.*
 
 - **ACP RPC** output channel and optional NDJSON log for debugging protocol traffic.
-- **Agent configuration** via `ib-acp.agents` in settings (command, args, env per agent).
+- **Agent configuration** via `ib-acp-ui.agents` in settings (command, args, env per agent).
 
 ## Usage
 
 1. Install the extension and open the **ACP UI** view in the activity bar.
 2. Use **Open ACP UI** (or **New ACP UI in Editor** from the Chats view) to start a session.
-3. Adjust agents under **Settings → Extensions → ACP UI** (`ib-acp.agents`).
+3. Adjust agents under **Settings → Extensions → ACP UI** (`ib-acp-ui.agents`).
 
 ## Development
 

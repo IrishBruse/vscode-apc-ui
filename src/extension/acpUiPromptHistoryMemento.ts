@@ -1,6 +1,6 @@
 import type { ExtensionContext } from "vscode";
 
-const promptHistoryMementoKey = "ibAcp.acpUi.promptHistoryBySession";
+const promptHistoryMementoKey = "ibAcpUi.promptHistoryBySession";
 
 const maxStoredPromptsPerSession = 50;
 

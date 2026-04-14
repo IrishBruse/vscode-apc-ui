@@ -56,7 +56,7 @@ export type ExtensionToWebviewMessage =
           workspaceLabel?: string;
           agentVersionLabel?: string;
           acpAgentName?: string;
-          /** Display names from `ib-acp.agents` for the agent picker. */
+          /** Display names from `ib-acp-ui.agents` for the agent picker. */
           availableAcpAgents?: string[];
           /** Optional `--vscode-*` overrides applied on `document.documentElement`. */
           vscodeThemeVariables?: Record<string, string>;

@@ -22,7 +22,7 @@
             "type": "object",
             "title": "ACP UI",
             "properties": {
-                "ib-acp.agents": {
+                "ib-acp-ui.agents": {
                     "type": "array",
                     "description": "ACP agent configurations. Each entry defines an agent subprocess to launch.",
                     "items": {
@@ -96,47 +96,47 @@
         },
         "commands": [
             {
-                "command": "ib-acp.openChat",
+                "command": "ib-acp-ui.openChat",
                 "title": "Open ACP UI",
                 "icon": "$(comment-discussion)",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.focusAcpUiSessions",
+                "command": "ib-acp-ui.focusAcpUiSessions",
                 "title": "Focus ACP UI Chats list",
                 "shortTitle": "Focus Chats list",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.newAcpUiInEditor",
+                "command": "ib-acp-ui.newAcpUiInEditor",
                 "title": "New ACP UI in Editor",
                 "shortTitle": "New in Editor",
                 "icon": "$(add)",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.refreshAcpUiSessions",
+                "command": "ib-acp-ui.refreshAcpUiSessions",
                 "title": "Refresh ACP UI list",
                 "shortTitle": "Refresh",
                 "icon": "$(refresh)",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.openAcpUiSession",
+                "command": "ib-acp-ui.openAcpUiSession",
                 "title": "Open ACP UI session",
                 "shortTitle": "Open",
                 "icon": "$(comment-discussion)",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.deleteAcpUiSession",
+                "command": "ib-acp-ui.deleteAcpUiSession",
                 "title": "Delete ACP UI",
                 "shortTitle": "Delete",
                 "icon": "$(trash)",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.showAcpRpcLog",
+                "command": "ib-acp-ui.showAcpRpcLog",
                 "title": "Show ACP RPC Log",
                 "category": "IrishBruse ACP"
             }
@@ -144,19 +144,19 @@
         "menus": {
             "view/item/context": [
                 {
-                    "command": "ib-acp.deleteAcpUiSession",
+                    "command": "ib-acp-ui.deleteAcpUiSession",
                     "when": "view == acpUiSessionsView && viewItem == session",
                     "group": "inline"
                 }
             ],
             "view/title": [
                 {
-                    "command": "ib-acp.refreshAcpUiSessions",
+                    "command": "ib-acp-ui.refreshAcpUiSessions",
                     "when": "view == acpUiSessionsView",
                     "group": "navigation"
                 },
                 {
-                    "command": "ib-acp.newAcpUiInEditor",
+                    "command": "ib-acp-ui.newAcpUiInEditor",
                     "when": "view == acpUiSessionsView",
                     "group": "navigation"
                 }

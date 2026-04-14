@@ -1,10 +1,10 @@
-import type { IbAcpExtensionActivation } from "./activateIbAcp";
+import type { AcpUiExtensionActivation } from "./activateAcpUiExtension";
 
-let activation: IbAcpExtensionActivation | undefined;
+let activation: AcpUiExtensionActivation | undefined;
 
 /** Called once from the extension `activate` function. */
-export function setIbAcpExtensionActivation(
-    next: IbAcpExtensionActivation,
+export function setAcpUiExtensionActivation(
+    next: AcpUiExtensionActivation,
 ): void {
     activation = next;
 }
@@ -13,9 +13,9 @@ export function setIbAcpExtensionActivation(
  * Shared extension-host services (RPC NDJSON sink, output channel) for UI features that compose
  * `AcpSessionBridge` from UI entrypoints.
  */
-export function getIbAcpExtensionActivation(): IbAcpExtensionActivation {
+export function getAcpUiExtensionActivation(): AcpUiExtensionActivation {
     if (activation === undefined) {
-        throw new Error("ib-acp extension is not activated");
+        throw new Error("ACP UI extension is not activated");
     }
     return activation;
 }
