@@ -24,6 +24,8 @@ import {
   type TraceItem,
 } from "./chatReducer";
 import { ChatComposer } from "./components/ChatComposer";
+import { CursorAskQuestionDialog } from "./components/CursorAskQuestionDialog";
+import { CursorCreatePlanDialog } from "./components/CursorCreatePlanDialog";
 import { PermissionDialog } from "./components/PermissionDialog";
 import { TraceList } from "./components/TraceList";
 import {
@@ -45,6 +47,23 @@ export type AcpUiAppProps = {
       | { requestId: string; selectedOptionId: string }
       | { requestId: string; cancelled: true },
   ) => void;
+  postCursorAskQuestionResponse: (payload: {
+    requestId: string;
+    outcome:
+      | {
+          outcome: "answered";
+          answers: Array<{ questionId: string; selectedOptionIds: string[] }>;
+        }
+      | { outcome: "skipped"; reason?: string }
+      | { outcome: "cancelled" };
+  }) => void;
+  postCursorCreatePlanResponse: (payload: {
+    requestId: string;
+    outcome:
+      | { outcome: "accepted"; planUri?: string }
+      | { outcome: "rejected"; reason?: string }
+      | { outcome: "cancelled" };
+  }) => void;
   extensionDispatchRef: RefObject<
     ((message: ExtensionMessageAfterInit) => void) | null
   >;
@@ -62,6 +81,8 @@ export function AcpUiApp({
   postSetSessionModel,
   postSavePromptHistory,
   postPermissionResponse,
+  postCursorAskQuestionResponse,
+  postCursorCreatePlanResponse,
   extensionDispatchRef,
 }: AcpUiAppProps): ReactElement {
   const [state, dispatch] = useReducer(
@@ -158,7 +179,10 @@ export function AcpUiApp({
   }, []);
 
   const dropFilesDisabled =
-    state.promptInFlight || state.permissionPrompt !== null;
+    state.promptInFlight ||
+    state.permissionPrompt !== null ||
+    state.askQuestionPrompt !== null ||
+    state.createPlanPrompt !== null;
 
   useEffect(() => {
     if (!fileDragActive) {
@@ -344,6 +368,8 @@ export function AcpUiApp({
   };
 
   const permission = state.permissionPrompt;
+  const askQuestion = state.askQuestionPrompt;
+  const createPlan = state.createPlanPrompt;
 
   const onShellDragEnterCapture = (event: DragEvent<HTMLDivElement>): void => {
     if (dropFilesDisabled || !dataTransferLooksLikePathDrop(event.dataTransfer)) {
@@ -453,13 +479,62 @@ export function AcpUiApp({
               }}
             />
           ) : null}
+          {askQuestion !== null ? (
+            <CursorAskQuestionDialog
+              request={askQuestion}
+              onSubmit={(answers) => {
+                postCursorAskQuestionResponse({
+                  requestId: askQuestion.requestId,
+                  outcome: { outcome: "answered", answers },
+                });
+                dispatch({ type: "clearAskQuestionPrompt" });
+              }}
+              onCancel={() => {
+                postCursorAskQuestionResponse({
+                  requestId: askQuestion.requestId,
+                  outcome: { outcome: "cancelled" },
+                });
+                dispatch({ type: "clearAskQuestionPrompt" });
+              }}
+            />
+          ) : null}
+          {createPlan !== null ? (
+            <CursorCreatePlanDialog
+              request={createPlan}
+              onAccept={() => {
+                postCursorCreatePlanResponse({
+                  requestId: createPlan.requestId,
+                  outcome: { outcome: "accepted" },
+                });
+                dispatch({ type: "clearCreatePlanPrompt" });
+              }}
+              onReject={() => {
+                postCursorCreatePlanResponse({
+                  requestId: createPlan.requestId,
+                  outcome: { outcome: "rejected" },
+                });
+                dispatch({ type: "clearCreatePlanPrompt" });
+              }}
+              onCancel={() => {
+                postCursorCreatePlanResponse({
+                  requestId: createPlan.requestId,
+                  outcome: { outcome: "cancelled" },
+                });
+                dispatch({ type: "clearCreatePlanPrompt" });
+              }}
+            />
+          ) : null}
           <ChatComposer
             activityLabel={activityLabel}
             workspacePathHint={workspaceText}
             modelSelection={state.modelSelection}
             modelPickerLocked={state.composerPicksLocked}
             promptInFlight={state.promptInFlight}
-            inputBlocked={state.permissionPrompt !== null}
+            inputBlocked={
+              state.permissionPrompt !== null ||
+              state.askQuestionPrompt !== null ||
+              state.createPlanPrompt !== null
+            }
             slashCommands={mergedSlashCommands}
             draft={draft}
             onDraftChange={onDraftChange}

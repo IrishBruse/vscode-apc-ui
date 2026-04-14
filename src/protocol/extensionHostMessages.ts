@@ -7,6 +7,12 @@ export type PlanEntry = {
     priority?: string;
 };
 
+export type TodoEntry = {
+    id: string;
+    content: string;
+    status: "pending" | "in_progress" | "completed" | "cancelled";
+};
+
 /** Tool call status forwarded from ACP. */
 export type ToolCallStatus = "pending" | "in_progress" | "completed" | "failed";
 
@@ -43,6 +49,28 @@ export type WebviewToExtensionMessage =
           selectedOptionId: string;
       }
     | { type: "permissionResponse"; requestId: string; cancelled: true }
+    | {
+          type: "cursorAskQuestionResponse";
+          requestId: string;
+          outcome:
+              | {
+                    outcome: "answered";
+                    answers: Array<{
+                        questionId: string;
+                        selectedOptionIds: string[];
+                    }>;
+                }
+              | { outcome: "skipped"; reason?: string }
+              | { outcome: "cancelled" };
+      }
+    | {
+          type: "cursorCreatePlanResponse";
+          requestId: string;
+          outcome:
+              | { outcome: "accepted"; planUri?: string }
+              | { outcome: "rejected"; reason?: string }
+              | { outcome: "cancelled" };
+      }
     /** Persists composer Arrow Up / Down prompt history for this session. */
     | { type: "savePromptHistory"; entries: string[] };
 
@@ -104,6 +132,50 @@ export type ExtensionToWebviewMessage =
           requestId: string;
           toolTitle: string;
           options: { optionId: string; name: string }[];
+      }
+    | {
+          type: "cursorAskQuestionRequest";
+          requestId: string;
+          title?: string;
+          questions: Array<{
+              id: string;
+              prompt: string;
+              options: Array<{ id: string; label: string }>;
+              allowMultiple?: boolean;
+          }>;
+      }
+    | {
+          type: "cursorCreatePlanRequest";
+          requestId: string;
+          name?: string;
+          overview?: string;
+          plan: string;
+          todos: TodoEntry[];
+          isProject?: boolean;
+          phases?: Array<{ name: string; todos: TodoEntry[] }>;
+      }
+    | {
+          type: "cursorUpdateTodos";
+          toolCallId: string;
+          todos: TodoEntry[];
+          merge: boolean;
+      }
+    | {
+          type: "cursorTask";
+          toolCallId: string;
+          description: string;
+          prompt: string;
+          subagentType: string;
+          model?: string;
+          agentId?: string;
+          durationMs?: number;
+      }
+    | {
+          type: "cursorGenerateImage";
+          toolCallId: string;
+          description: string;
+          filePath?: string;
+          referenceImagePaths?: string[];
       }
     | { type: "slashCommands"; commands: AcpUiSlashCommand[] }
     | { type: "appendPlan"; entries: PlanEntry[] }
@@ -184,6 +256,40 @@ export function tryParseWebviewMessage(
                 selectedOptionId: record.selectedOptionId,
             };
         }
+    }
+    if (
+        messageType === "cursorAskQuestionResponse" &&
+        typeof record.requestId === "string" &&
+        record.requestId.length > 0 &&
+        record.outcome !== undefined &&
+        record.outcome !== null &&
+        typeof record.outcome === "object"
+    ) {
+        return {
+            type: "cursorAskQuestionResponse",
+            requestId: record.requestId,
+            outcome: record.outcome as Extract<
+                WebviewToExtensionMessage,
+                { type: "cursorAskQuestionResponse" }
+            >["outcome"],
+        };
+    }
+    if (
+        messageType === "cursorCreatePlanResponse" &&
+        typeof record.requestId === "string" &&
+        record.requestId.length > 0 &&
+        record.outcome !== undefined &&
+        record.outcome !== null &&
+        typeof record.outcome === "object"
+    ) {
+        return {
+            type: "cursorCreatePlanResponse",
+            requestId: record.requestId,
+            outcome: record.outcome as Extract<
+                WebviewToExtensionMessage,
+                { type: "cursorCreatePlanResponse" }
+            >["outcome"],
+        };
     }
     if (messageType === "savePromptHistory" && Array.isArray(record.entries)) {
         const entries: string[] = [];

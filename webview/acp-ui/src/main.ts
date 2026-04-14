@@ -57,6 +57,12 @@ host.onExtensionMessage((message: ExtensionToWebviewMessage) => {
             (payload) => {
                 host.post({ type: "permissionResponse", ...payload });
             },
+            (payload) => {
+                host.post({ type: "cursorAskQuestionResponse", ...payload });
+            },
+            (payload) => {
+                host.post({ type: "cursorCreatePlanResponse", ...payload });
+            },
         );
         return;
     }

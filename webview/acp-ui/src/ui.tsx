@@ -27,6 +27,26 @@ export function mountChatView(
             | { requestId: string; selectedOptionId: string }
             | { requestId: string; cancelled: true },
     ) => void,
+    postCursorAskQuestionResponse: (payload: {
+        requestId: string;
+        outcome:
+            | {
+                  outcome: "answered";
+                  answers: Array<{
+                      questionId: string;
+                      selectedOptionIds: string[];
+                  }>;
+              }
+            | { outcome: "skipped"; reason?: string }
+            | { outcome: "cancelled" };
+    }) => void,
+    postCursorCreatePlanResponse: (payload: {
+        requestId: string;
+        outcome:
+            | { outcome: "accepted"; planUri?: string }
+            | { outcome: "rejected"; reason?: string }
+            | { outcome: "cancelled" };
+    }) => void,
 ): ChatView {
     root.replaceChildren();
     root.className = "root agent-root";
@@ -46,6 +66,8 @@ export function mountChatView(
             postSetSessionModel={postSetSessionModel}
             postSavePromptHistory={postSavePromptHistory}
             postPermissionResponse={postPermissionResponse}
+            postCursorAskQuestionResponse={postCursorAskQuestionResponse}
+            postCursorCreatePlanResponse={postCursorCreatePlanResponse}
             extensionDispatchRef={extensionDispatchRef}
         />,
     );

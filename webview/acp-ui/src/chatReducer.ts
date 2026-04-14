@@ -3,6 +3,7 @@ import type {
     ExtensionToWebviewMessage,
     AcpUiSlashCommand,
     PlanEntry,
+    TodoEntry,
     ToolCallDiffRow,
     ToolCallStatus,
 } from "../../../src/protocol/extensionHostMessages";
@@ -45,6 +46,16 @@ export type PermissionPromptState = {
     options: { optionId: string; name: string }[];
 };
 
+export type AskQuestionPromptState = Extract<
+    ExtensionToWebviewMessage,
+    { type: "cursorAskQuestionRequest" }
+>;
+
+export type CreatePlanPromptState = Extract<
+    ExtensionToWebviewMessage,
+    { type: "cursorCreatePlanRequest" }
+>;
+
 export type ChatState = {
     trace: TraceItem[];
     openStreamIndex: number | null;
@@ -55,6 +66,8 @@ export type ChatState = {
     acpAgentSelection: AcpAgentSelectionState | null;
     slashCommands: AcpUiSlashCommand[];
     permissionPrompt: PermissionPromptState | null;
+    askQuestionPrompt: AskQuestionPromptState | null;
+    createPlanPrompt: CreatePlanPromptState | null;
     /**
      * From host init: agent was fixed when the chat was created (VS Code sidebar flow).
      */
@@ -69,7 +82,9 @@ export type ChatAction =
     | ExtensionMessageAfterInit
     | { type: "submit"; body: string }
     | { type: "pickSessionModel"; modelId: string }
-    | { type: "clearPermissionPrompt" };
+    | { type: "clearPermissionPrompt" }
+    | { type: "clearAskQuestionPrompt" }
+    | { type: "clearCreatePlanPrompt" };
 
 const EDIT_TOOL_DISPLAY_TITLE = "Write File";
 
@@ -96,6 +111,8 @@ export function createInitialChatState(): ChatState {
         acpAgentSelection: null,
         slashCommands: [],
         permissionPrompt: null,
+        askQuestionPrompt: null,
+        createPlanPrompt: null,
         lockSessionAgent: false,
         composerPicksLocked: false,
     };
@@ -342,7 +359,22 @@ function applySessionReset(state: ChatState): ChatState {
         promptInFlight: false,
         errorText: null,
         permissionPrompt: null,
+        askQuestionPrompt: null,
+        createPlanPrompt: null,
     };
+}
+
+function todoStatusEmoji(status: TodoEntry["status"]): string {
+    if (status === "completed") {
+        return "x";
+    }
+    if (status === "in_progress") {
+        return "~";
+    }
+    if (status === "cancelled") {
+        return "-";
+    }
+    return " ";
 }
 
 export function chatReducer(state: ChatState, action: ChatAction): ChatState {
@@ -374,6 +406,12 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
     }
     if (action.type === "clearPermissionPrompt") {
         return { ...state, permissionPrompt: null };
+    }
+    if (action.type === "clearAskQuestionPrompt") {
+        return { ...state, askQuestionPrompt: null };
+    }
+    if (action.type === "clearCreatePlanPrompt") {
+        return { ...state, createPlanPrompt: null };
     }
     switch (action.type) {
         case "sessionReset":
@@ -428,6 +466,36 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
                     options: action.options,
                 },
             };
+        case "cursorAskQuestionRequest":
+            return { ...state, askQuestionPrompt: action };
+        case "cursorCreatePlanRequest":
+            return { ...state, createPlanPrompt: action };
+        case "cursorUpdateTodos": {
+            const trace = [
+                ...state.trace,
+                {
+                    type: "plan" as const,
+                    entries: action.todos.map((todo) => ({
+                        content: `[${todoStatusEmoji(todo.status)}] ${todo.content}`,
+                        status: todo.status,
+                    })),
+                },
+            ];
+            return { ...state, trace, openStreamIndex: null };
+        }
+        case "cursorTask": {
+            const taskLine = `Subagent task: ${action.description}`;
+            const trace = [...state.trace, { type: "agent" as const, text: taskLine }];
+            return { ...state, trace, openStreamIndex: trace.length - 1 };
+        }
+        case "cursorGenerateImage": {
+            const text =
+                action.filePath !== undefined
+                    ? `Generated image: ${action.filePath}`
+                    : `Generate image requested: ${action.description}`;
+            const trace = [...state.trace, { type: "agent" as const, text }];
+            return { ...state, trace, openStreamIndex: trace.length - 1 };
+        }
         case "appendPlan": {
             const trace = [
                 ...state.trace,

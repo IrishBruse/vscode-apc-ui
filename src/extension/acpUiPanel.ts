@@ -291,6 +291,18 @@ export function openOrRevealAcpUiEditor(
 
         if (parsed.type === "permissionResponse") {
             bridgesBySessionId.get(sessionId)?.handlePermissionResponse(parsed);
+            return;
+        }
+        if (parsed.type === "cursorAskQuestionResponse") {
+            bridgesBySessionId
+                .get(sessionId)
+                ?.handleCursorAskQuestionResponse(parsed);
+            return;
+        }
+        if (parsed.type === "cursorCreatePlanResponse") {
+            bridgesBySessionId
+                .get(sessionId)
+                ?.handleCursorCreatePlanResponse(parsed);
         }
     });
 

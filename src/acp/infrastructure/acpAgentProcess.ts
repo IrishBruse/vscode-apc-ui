@@ -84,6 +84,14 @@ export type RequestPermissionHandler = (
 export type AcpAgentProcessOptions = {
     config: AcpAgentSpawnConfig;
     requestPermission: RequestPermissionHandler;
+    extMethod?: (
+        method: string,
+        params: Record<string, unknown>,
+    ) => Promise<Record<string, unknown>>;
+    extNotification?: (
+        method: string,
+        params: Record<string, unknown>,
+    ) => Promise<void>;
     hostFilesystem: AcpHostFilesystem;
     rpcNdjsonSink: AcpRpcNdjsonSink;
     /** Workspace folder used for spawn `cwd` and `session/new` `cwd` metadata. */
@@ -142,6 +150,18 @@ export class AcpAgentProcess {
                 this.options.requestPermission(params),
             sessionUpdate: async (params) => {
                 this.sessionUpdateHandler?.(params);
+            },
+            extMethod: async (method, params) => {
+                if (this.options.extMethod === undefined) {
+                    return {};
+                }
+                return this.options.extMethod(method, params);
+            },
+            extNotification: async (method, params) => {
+                if (this.options.extNotification === undefined) {
+                    return;
+                }
+                await this.options.extNotification(method, params);
             },
             readTextFile: async (params) => this.handleReadTextFile(params),
             writeTextFile: async (params) => this.handleWriteTextFile(params),
