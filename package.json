@@ -5,6 +5,7 @@
     "publisher": "irishbruse",
     "author": "Ethan Conneely",
     "version": "0.1.0",
+    "icon": "icon.png",
     "license": "MIT",
     "engines": {
         "vscode": "^1.115.0"
@@ -79,7 +80,7 @@
                 {
                     "id": "ibChatContainer",
                     "title": "IB Chat",
-                    "icon": "media/chat_icon.svg"
+                    "icon": "media/acp-icon.svg"
                 }
             ]
         },
@@ -89,7 +90,7 @@
                     "id": "ibChatSessionsView",
                     "name": "Chats",
                     "type": "tree",
-                    "icon": "media/chat_icon.svg"
+                    "icon": "media/acp-icon.svg"
                 }
             ]
         },
