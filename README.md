@@ -1,22 +1,22 @@
 # ACP UI
 
-VS Code extension that brings an **IB Chat** panel to the [Agent Client Protocol (ACP)](https://github.com/agentclientprotocol) — chat with configured agent processes from the editor.
+VS Code extension that brings an **ACP UI** panel to the [Agent Client Protocol (ACP)](https://github.com/agentclientprotocol) — chat with configured agent processes from the editor.
 
-Open **IB Chat** from the activity bar to get a dedicated chat surface next to your code: the **Chats** view lists sessions, and the webview shows the running conversation with the same UI in an editor tab or side panel.
+Open **ACP UI** from the activity bar to get a dedicated chat surface next to your code: the **Chats** view lists sessions, and the webview shows the running conversation with the same UI in an editor tab or side panel.
 
-![IB Chat with sidebar sessions and main conversation](docs/Fullscreen.png)
+![ACP UI with sidebar sessions and main conversation](docs/Fullscreen.png)
 
-*Activity bar entry, Chats sidebar, and IB Chat webview in one layout.*
+*Activity bar entry, Chats sidebar, and ACP UI webview in one layout.*
 
 ## Features
 
-- **IB Chat** webview: ACP-backed chat in an editor tab or panel (see above). The composer and quick actions live along the bottom of the panel:
+- **ACP UI** webview: ACP-backed chat in an editor tab or panel (see above). The composer and quick actions live along the bottom of the panel:
 
   ![Composer and input area](./docs/Input.png)
 
-  *Prompt field, attachments, and controls at the foot of IB Chat.*
+  *Prompt field, attachments, and controls at the foot of ACP UI.*
 
-- **Chats** sidebar under the **IB Chat** activity bar: list sessions, open, refresh, delete.
+- **Chats** sidebar under the **ACP UI** activity bar: list sessions, open, refresh, delete.
 - **Agent picker**: choose which configured agent backs the current chat (agents come from `ib-acp.agents`):
 
   ![Agent picker](docs/Agent%20Picker.png)
@@ -28,8 +28,8 @@ Open **IB Chat** from the activity bar to get a dedicated chat surface next to y
 
 ## Usage
 
-1. Install the extension and open the **IB Chat** view in the activity bar.
-2. Use **Open IB Chat** (or **New IB Chat in Editor** from the Chats view) to start a session.
+1. Install the extension and open the **ACP UI** view in the activity bar.
+2. Use **Open ACP UI** (or **New ACP UI in Editor** from the Chats view) to start a session.
 3. Adjust agents under **Settings → Extensions → ACP UI** (`ib-acp.agents`).
 
 ## Development
@@ -51,7 +51,7 @@ Publishing is automated when `package.json` **version** changes on `main` (see `
 
 | Area | Role |
 | --- | --- |
-| [`src/extension.ts`](src/extension.ts) | Extension entry: activates ACP services, IB Chat panel, Chats tree view. |
+| [`src/extension.ts`](src/extension.ts) | Extension entry: activates ACP services, ACP UI panel, Chats tree view. |
 | [`src/extension/`](src/extension/) | Chat webview registration, sessions sidebar, agent picker, prompt history. |
 | [`src/acp/`](src/acp/) | ACP session bridge, agent config from VS Code settings, RPC helpers. |
 | [`src/protocol/`](src/protocol/) | Messages between extension host and webview. |

@@ -1,7 +1,7 @@
 import type { RefObject } from "react";
 import { createRoot } from "react-dom/client";
 import type { ExtensionMessageAfterInit, InitPayload } from "./chatReducer";
-import { IbChatApp } from "./IbChatApp";
+import { AcpUiApp } from "./AcpUiApp";
 
 export type { ExtensionMessageAfterInit, InitPayload } from "./chatReducer";
 
@@ -10,7 +10,7 @@ export type ChatView = {
 };
 
 /**
- * Mounts the IB Chat UI into `root`. Returns a view handle whose `handleMessage`
+ * Mounts the ACP UI into `root`. Returns a view handle whose `handleMessage`
  * must be called for every non-init message received from the host.
  */
 export function mountChatView(
@@ -36,7 +36,7 @@ export function mountChatView(
     };
     const reactRoot = createRoot(root);
     reactRoot.render(
-        <IbChatApp
+        <AcpUiApp
             init={init}
             postSend={postSend}
             postCancel={postCancel}

@@ -16,24 +16,24 @@ import { createDefaultAcpSessionHostRuntime } from "../platform/vscode/defaultHo
 import type { ExtensionToWebviewMessage } from "../protocol/extensionHostMessages";
 import { tryParseWebviewMessage } from "../protocol/extensionHostMessages";
 import { registerCommandIB } from "../utils/vscode";
+import { pickAcpAgentConfig } from "./acpUiAgentPicker";
+import {
+    getAcpUiPromptHistoryEntries,
+    setAcpUiPromptHistoryEntries,
+} from "./acpUiPromptHistoryMemento";
+import {
+    addAcpUiSession,
+    listAcpUiSessions,
+    setAcpUiSessionAgentName,
+    setActiveAcpUiSessionId,
+} from "./acpUiSessionsStore";
+import { getAcpUiWebviewHtml } from "./acpUiWebviewShell";
 import { getIbAcpExtensionActivation } from "./extensionServices";
-import { pickAcpAgentConfig } from "./ibChatAgentPicker";
-import {
-    getIbChatPromptHistoryEntries,
-    setIbChatPromptHistoryEntries,
-} from "./ibChatPromptHistoryMemento";
-import {
-    addIbChatSession,
-    listIbChatSessions,
-    setActiveIbChatSessionId,
-    setIbChatSessionAgentName,
-} from "./ibChatSessionsStore";
-import { getIbChatWebviewHtml } from "./ibChatWebviewShell";
 
-const editorViewType = "ibAcpIbChatEditor";
+const editorViewType = "ibAcpAcpUiEditor";
 
 /** Tab / panel icon (codicon chat bubble). */
-const ibChatPanelTabIcon = new ThemeIcon("comment-discussion");
+const acpUiPanelTabIcon = new ThemeIcon("comment-discussion");
 
 const panelsBySessionId = new Map<string, WebviewPanel>();
 const bridgesBySessionId = new Map<string, AcpSessionBridge>();
@@ -104,7 +104,7 @@ async function ensureBridgeConnected(
 /**
  * Reveals an existing editor webview for the session or creates one with the given title.
  */
-export function openOrRevealIbChatEditor(
+export function openOrRevealAcpUiEditor(
     context: ExtensionContext,
     sessionId: string,
     title: string,
@@ -113,7 +113,7 @@ export function openOrRevealIbChatEditor(
     const existing = panelsBySessionId.get(sessionId);
     if (existing !== undefined) {
         existing.title = title;
-        existing.iconPath = ibChatPanelTabIcon;
+        existing.iconPath = acpUiPanelTabIcon;
         existing.reveal(ViewColumn.Active);
         return;
     }
@@ -128,11 +128,11 @@ export function openOrRevealIbChatEditor(
             localResourceRoots: [context.extensionUri],
         },
     );
-    panel.webview.html = getIbChatWebviewHtml(
+    panel.webview.html = getAcpUiWebviewHtml(
         context.extensionUri,
         panel.webview,
     );
-    panel.iconPath = ibChatPanelTabIcon;
+    panel.iconPath = acpUiPanelTabIcon;
 
     const post = (msg: ExtensionToWebviewMessage): void => {
         void panel.webview.postMessage(msg);
@@ -157,7 +157,7 @@ export function openOrRevealIbChatEditor(
             const configs = getAcpAgentConfigsFromSettings();
             const availableNames = configs.map((c) => c.name);
             const defaultAgent = agentConfig ?? configs[0];
-            const promptHistory = getIbChatPromptHistoryEntries(
+            const promptHistory = getAcpUiPromptHistoryEntries(
                 context,
                 sessionId,
             );
@@ -190,7 +190,7 @@ export function openOrRevealIbChatEditor(
         }
 
         if (parsed.type === "savePromptHistory") {
-            setIbChatPromptHistoryEntries(context, sessionId, parsed.entries);
+            setAcpUiPromptHistoryEntries(context, sessionId, parsed.entries);
             return;
         }
 
@@ -240,7 +240,7 @@ export function openOrRevealIbChatEditor(
                 return;
             }
             agentConfigBySessionId.set(sessionId, config);
-            setIbChatSessionAgentName(sessionId, config.name);
+            setAcpUiSessionAgentName(sessionId, config.name);
             disposeBridgeForSession(sessionId);
             pendingModelIdBySessionId.delete(sessionId);
             const names = getAcpAgentConfigsFromSettings().map((c) => c.name);
@@ -272,32 +272,32 @@ export function openOrRevealIbChatEditor(
 /**
  * Closes the editor webview for a session if it is open.
  */
-export function disposeIbChatEditorForSession(sessionId: string): void {
+export function disposeAcpUiEditorForSession(sessionId: string): void {
     const panel = panelsBySessionId.get(sessionId);
     panel?.dispose();
 }
 
 /**
- * Registers IB Chat commands. Pass {@link refreshChatsList} from {@link IbChatSessionsViewProvider.activate}
+ * Registers ACP UI commands. Pass {@link refreshChatsList} from {@link AcpUiSessionsViewProvider.activate}
  * so new chats update the sidebar tree.
  */
-export function registerIbChatPanel(
+export function registerAcpUiPanel(
     context: ExtensionContext,
     refreshChatsList: () => void,
 ): void {
     registerCommandIB(
         "ib-acp.openChat",
-        () => void openNewIbChat(context, refreshChatsList),
+        () => void openNewAcpUi(context, refreshChatsList),
         context,
     );
     registerCommandIB(
-        "ib-acp.newIbChatInEditor",
-        () => void openNewIbChat(context, refreshChatsList),
+        "ib-acp.newAcpUiInEditor",
+        () => void openNewAcpUi(context, refreshChatsList),
         context,
     );
 }
 
-async function openNewIbChat(
+async function openNewAcpUi(
     context: ExtensionContext,
     refreshChatsList: () => void,
 ): Promise<void> {
@@ -305,11 +305,11 @@ async function openNewIbChat(
     if (agentConfig === undefined) {
         return;
     }
-    const nextIndex = listIbChatSessions().length + 1;
-    const created = addIbChatSession(`Chat ${nextIndex}`, {
+    const nextIndex = listAcpUiSessions().length + 1;
+    const created = addAcpUiSession(`Chat ${nextIndex}`, {
         agentName: agentConfig.name,
     });
-    setActiveIbChatSessionId(created.id);
-    openOrRevealIbChatEditor(context, created.id, created.title, agentConfig);
+    setActiveAcpUiSessionId(created.id);
+    openOrRevealAcpUiEditor(context, created.id, created.title, agentConfig);
     refreshChatsList();
 }

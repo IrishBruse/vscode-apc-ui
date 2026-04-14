@@ -38,6 +38,6 @@ export {
     type PostToWebview,
 } from "./session/acpSessionBridge";
 export {
-    type IbChatSessionModelSelection,
-    sessionModelStateToIbChatSelection,
+    type AcpUiSessionModelSelection,
+    sessionModelStateToAcpUiSelection,
 } from "./session/sessionModels";

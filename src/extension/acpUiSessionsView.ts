@@ -15,42 +15,42 @@ import {
 } from "../acp/config/vscodeSettingsAgents";
 import { registerCommandIB } from "../utils/vscode";
 import {
-    disposeIbChatEditorForSession,
-    openOrRevealIbChatEditor,
-} from "./ibChatPanel";
-import { removeIbChatPromptHistoryEntries } from "./ibChatPromptHistoryMemento";
+    disposeAcpUiEditorForSession,
+    openOrRevealAcpUiEditor,
+} from "./acpUiPanel";
+import { removeAcpUiPromptHistoryEntries } from "./acpUiPromptHistoryMemento";
 import {
-    getActiveIbChatSessionId,
-    type IbChatSessionRecord,
-    listIbChatSessions,
-    removeIbChatSession,
-    setActiveIbChatSessionId,
-} from "./ibChatSessionsStore";
+    type AcpUiSessionRecord,
+    getActiveAcpUiSessionId,
+    listAcpUiSessions,
+    removeAcpUiSession,
+    setActiveAcpUiSessionId,
+} from "./acpUiSessionsStore";
 
-const viewIdIbChatSessions = "ibChatSessionsView";
+const viewIdAcpUiSessions = "acpUiSessionsView";
 
-const cmdFocusIbChatSessions = "ib-acp.focusIbChatSessions";
-const cmdRefreshIbChatSessions = "ib-acp.refreshIbChatSessions";
-const cmdOpenIbChatSession = "ib-acp.openIbChatSession";
-const cmdDeleteIbChatSession = "ib-acp.deleteIbChatSession";
+const cmdFocusAcpUiSessions = "ib-acp.focusAcpUiSessions";
+const cmdRefreshAcpUiSessions = "ib-acp.refreshAcpUiSessions";
+const cmdOpenAcpUiSession = "ib-acp.openAcpUiSession";
+const cmdDeleteAcpUiSession = "ib-acp.deleteAcpUiSession";
 
 const iconChat = "comment-discussion";
 
-type IbChatSessionsTreeNode = IbChatSessionTreeItem | IbChatPlaceholderTreeItem;
+type AcpUiSessionsTreeNode = AcpUiSessionTreeItem | AcpUiPlaceholderTreeItem;
 
-class IbChatPlaceholderTreeItem extends TreeItem {
+class AcpUiPlaceholderTreeItem extends TreeItem {
     constructor() {
         super(
-            "No chats yet — use New IB Chat in Editor above",
+            "No chats yet — use New ACP UI in Editor above",
             TreeItemCollapsibleState.None,
         );
         this.contextValue = "placeholder";
         this.tooltip =
-            "Use New IB Chat in Editor on the Chats view title to create a chat";
+            "Use New ACP UI in Editor on the Chats view title to create a chat";
     }
 }
 
-class IbChatSessionTreeItem extends TreeItem {
+class AcpUiSessionTreeItem extends TreeItem {
     constructor(
         public readonly sessionId: string,
         label: string,
@@ -63,18 +63,16 @@ class IbChatSessionTreeItem extends TreeItem {
         this.iconPath = new ThemeIcon(iconChat);
         this.command = {
             title: "Open Chat",
-            command: cmdOpenIbChatSession,
+            command: cmdOpenAcpUiSession,
             arguments: [sessionId],
         };
     }
 }
 
-export class IbChatSessionsViewProvider
-    implements TreeDataProvider<IbChatSessionsTreeNode>
+export class AcpUiSessionsViewProvider
+    implements TreeDataProvider<AcpUiSessionsTreeNode>
 {
-    private changeEvent = new EventEmitter<
-        IbChatSessionsTreeNode | undefined
-    >();
+    private changeEvent = new EventEmitter<AcpUiSessionsTreeNode | undefined>();
 
     private readonly extensionContext: ExtensionContext;
 
@@ -82,9 +80,7 @@ export class IbChatSessionsViewProvider
         this.extensionContext = extensionContext;
     }
 
-    public get onDidChangeTreeData(): Event<
-        IbChatSessionsTreeNode | undefined
-    > {
+    public get onDidChangeTreeData(): Event<AcpUiSessionsTreeNode | undefined> {
         return this.changeEvent.event;
     }
 
@@ -92,33 +88,33 @@ export class IbChatSessionsViewProvider
      * Registers the Chats tree view and session commands. Returns a function that refreshes the tree.
      */
     static activate(context: ExtensionContext): () => void {
-        const provider = new IbChatSessionsViewProvider(context);
+        const provider = new AcpUiSessionsViewProvider(context);
         context.subscriptions.push(
-            window.registerTreeDataProvider(viewIdIbChatSessions, provider),
+            window.registerTreeDataProvider(viewIdAcpUiSessions, provider),
         );
 
         registerCommandIB(
-            cmdRefreshIbChatSessions,
+            cmdRefreshAcpUiSessions,
             () => provider.refresh(),
             context,
         );
         registerCommandIB(
-            cmdOpenIbChatSession,
+            cmdOpenAcpUiSession,
             (...args: unknown[]) =>
                 void provider.openSession(args[0] as string | undefined),
             context,
         );
         registerCommandIB(
-            cmdDeleteIbChatSession,
+            cmdDeleteAcpUiSession,
             (...args: unknown[]) =>
                 void provider.deleteSession(
-                    args[0] as IbChatSessionsTreeNode | undefined,
+                    args[0] as AcpUiSessionsTreeNode | undefined,
                 ),
             context,
         );
         registerCommandIB(
-            cmdFocusIbChatSessions,
-            () => commands.executeCommand(`${viewIdIbChatSessions}.focus`),
+            cmdFocusAcpUiSessions,
+            () => commands.executeCommand(`${viewIdAcpUiSessions}.focus`),
             context,
         );
 
@@ -129,21 +125,21 @@ export class IbChatSessionsViewProvider
         this.changeEvent.fire(undefined);
     }
 
-    getTreeItem(element: IbChatSessionsTreeNode): TreeItem {
+    getTreeItem(element: AcpUiSessionsTreeNode): TreeItem {
         return element;
     }
 
     async getChildren(
-        element?: IbChatSessionsTreeNode,
-    ): Promise<IbChatSessionsTreeNode[]> {
+        element?: AcpUiSessionsTreeNode,
+    ): Promise<AcpUiSessionsTreeNode[]> {
         if (element) {
             return [];
         }
-        const rows = listIbChatSessions();
+        const rows = listAcpUiSessions();
         if (rows.length === 0) {
-            return [new IbChatPlaceholderTreeItem()];
+            return [new AcpUiPlaceholderTreeItem()];
         }
-        const active = getActiveIbChatSessionId();
+        const active = getActiveAcpUiSessionId();
         return rows.map((row) => this.toTreeItem(row, active));
     }
 
@@ -152,14 +148,10 @@ export class IbChatSessionsViewProvider
     }
 
     private toTreeItem(
-        row: IbChatSessionRecord,
+        row: AcpUiSessionRecord,
         activeId: string | null,
-    ): IbChatSessionTreeItem {
-        return new IbChatSessionTreeItem(
-            row.id,
-            row.title,
-            row.id === activeId,
-        );
+    ): AcpUiSessionTreeItem {
+        return new AcpUiSessionTreeItem(row.id, row.title, row.id === activeId);
     }
 
     private async openSession(sessionId?: string): Promise<void> {
@@ -167,19 +159,19 @@ export class IbChatSessionsViewProvider
             window.showInformationMessage("Choose a chat from the Chats list");
             return;
         }
-        const row = listIbChatSessions().find((s) => s.id === sessionId);
+        const row = listAcpUiSessions().find((s) => s.id === sessionId);
         if (!row) {
             window.showErrorMessage("That chat no longer exists");
             this.refresh();
             return;
         }
-        setActiveIbChatSessionId(sessionId);
+        setActiveAcpUiSessionId(sessionId);
         this.refresh();
         const agentConfig =
             row.agentName !== undefined
                 ? getAcpAgentConfigByName(row.agentName)
                 : getAcpAgentConfigsFromSettings()[0];
-        openOrRevealIbChatEditor(
+        openOrRevealAcpUiEditor(
             this.extensionContext,
             sessionId,
             row.title,
@@ -188,13 +180,13 @@ export class IbChatSessionsViewProvider
     }
 
     private async deleteSession(
-        item: IbChatSessionsTreeNode | undefined,
+        item: AcpUiSessionsTreeNode | undefined,
     ): Promise<void> {
         if (!item || !("sessionId" in item)) {
             window.showErrorMessage("Select a chat in the Chats list");
             return;
         }
-        const row = listIbChatSessions().find((s) => s.id === item.sessionId);
+        const row = listAcpUiSessions().find((s) => s.id === item.sessionId);
         const labelText = row?.title ?? "chat";
         const answer = await window.showWarningMessage(
             `Delete chat "${labelText}"? This cannot be undone.`,
@@ -204,9 +196,9 @@ export class IbChatSessionsViewProvider
         if (answer !== "Delete") {
             return;
         }
-        disposeIbChatEditorForSession(item.sessionId);
-        removeIbChatPromptHistoryEntries(this.extensionContext, item.sessionId);
-        removeIbChatSession(item.sessionId);
+        disposeAcpUiEditorForSession(item.sessionId);
+        removeAcpUiPromptHistoryEntries(this.extensionContext, item.sessionId);
+        removeAcpUiSession(item.sessionId);
         this.refresh();
     }
 }

@@ -13,8 +13,8 @@ import {
 import type { AcpHostFilesystem } from "../ports/hostFilesystem";
 import type { AcpRpcNdjsonSink } from "../ports/rpcNdjsonSink";
 import {
-    type IbChatSessionModelSelection,
-    sessionModelStateToIbChatSelection,
+    type AcpUiSessionModelSelection,
+    sessionModelStateToAcpUiSelection,
 } from "./sessionModels";
 
 /** Callback that forwards an extension-to-webview message to the UI host. */
@@ -38,7 +38,7 @@ export class AcpSessionBridge {
     private agentProcess: AcpAgentProcess;
     private acpSessionId: string | null = null;
     private prompting = false;
-    private lastModelSelection: IbChatSessionModelSelection | null = null;
+    private lastModelSelection: AcpUiSessionModelSelection | null = null;
     private toolCallKindTracking = createToolCallKindTracking();
     private nextPermissionRequestId = 0;
     private permissionWaiters = new Map<
@@ -135,7 +135,7 @@ export class AcpSessionBridge {
                     state = { ...state, currentModelId: preferredModelId };
                 } catch {}
             }
-            const selection = sessionModelStateToIbChatSelection(state);
+            const selection = sessionModelStateToAcpUiSelection(state);
             this.lastModelSelection = selection;
             this.postToWebview({ type: "sessionModels", ...selection });
         }
@@ -148,7 +148,7 @@ export class AcpSessionBridge {
         }
         await this.agentProcess.setSessionModel(this.acpSessionId, modelId);
         if (this.lastModelSelection !== null) {
-            const next: IbChatSessionModelSelection = {
+            const next: AcpUiSessionModelSelection = {
                 ...this.lastModelSelection,
                 currentModelId: modelId,
             };

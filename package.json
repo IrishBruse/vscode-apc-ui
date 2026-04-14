@@ -78,16 +78,16 @@
         "viewsContainers": {
             "activitybar": [
                 {
-                    "id": "ibChatContainer",
-                    "title": "IB Chat",
+                    "id": "acpUiContainer",
+                    "title": "ACP UI",
                     "icon": "media/acp-icon.svg"
                 }
             ]
         },
         "views": {
-            "ibChatContainer": [
+            "acpUiContainer": [
                 {
-                    "id": "ibChatSessionsView",
+                    "id": "acpUiSessionsView",
                     "name": "Chats",
                     "type": "tree",
                     "icon": "media/acp-icon.svg"
@@ -97,40 +97,40 @@
         "commands": [
             {
                 "command": "ib-acp.openChat",
-                "title": "Open IB Chat",
+                "title": "Open ACP UI",
                 "icon": "$(comment-discussion)",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.focusIbChatSessions",
-                "title": "Focus IB Chat Chats list",
+                "command": "ib-acp.focusAcpUiSessions",
+                "title": "Focus ACP UI Chats list",
                 "shortTitle": "Focus Chats list",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.newIbChatInEditor",
-                "title": "New IB Chat in Editor",
+                "command": "ib-acp.newAcpUiInEditor",
+                "title": "New ACP UI in Editor",
                 "shortTitle": "New in Editor",
                 "icon": "$(add)",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.refreshIbChatSessions",
-                "title": "Refresh IB Chat list",
+                "command": "ib-acp.refreshAcpUiSessions",
+                "title": "Refresh ACP UI list",
                 "shortTitle": "Refresh",
                 "icon": "$(refresh)",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.openIbChatSession",
-                "title": "Open IB Chat session",
+                "command": "ib-acp.openAcpUiSession",
+                "title": "Open ACP UI session",
                 "shortTitle": "Open",
                 "icon": "$(comment-discussion)",
                 "category": "IrishBruse ACP"
             },
             {
-                "command": "ib-acp.deleteIbChatSession",
-                "title": "Delete IB Chat",
+                "command": "ib-acp.deleteAcpUiSession",
+                "title": "Delete ACP UI",
                 "shortTitle": "Delete",
                 "icon": "$(trash)",
                 "category": "IrishBruse ACP"
@@ -144,20 +144,20 @@
         "menus": {
             "view/item/context": [
                 {
-                    "command": "ib-acp.deleteIbChatSession",
-                    "when": "view == ibChatSessionsView && viewItem == session",
+                    "command": "ib-acp.deleteAcpUiSession",
+                    "when": "view == acpUiSessionsView && viewItem == session",
                     "group": "inline"
                 }
             ],
             "view/title": [
                 {
-                    "command": "ib-acp.refreshIbChatSessions",
-                    "when": "view == ibChatSessionsView",
+                    "command": "ib-acp.refreshAcpUiSessions",
+                    "when": "view == acpUiSessionsView",
                     "group": "navigation"
                 },
                 {
-                    "command": "ib-acp.newIbChatInEditor",
-                    "when": "view == ibChatSessionsView",
+                    "command": "ib-acp.newAcpUiInEditor",
+                    "when": "view == acpUiSessionsView",
                     "group": "navigation"
                 }
             ]
@@ -175,7 +175,8 @@
         "lint": "biome check .",
         "lint:fix": "biome check --write .",
         "format": "biome format --write .",
-        "verify": "concurrently --names Build,Check,Test,Lint 'npm run build' 'npm run check' 'npm run test' 'npm run lint'"
+        "verify": "concurrently --names Build,Check,Test,Lint 'npm run build' 'npm run check' 'npm run test' 'npm run lint'",
+        "publish:vscode": "bash scripts/publish.sh"
     },
     "dependencies": {
         "@agentclientprotocol/sdk": "^0.18.2",

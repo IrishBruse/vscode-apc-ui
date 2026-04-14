@@ -1,6 +1,6 @@
 import type { ExtensionContext } from "vscode";
 
-const promptHistoryMementoKey = "ibAcp.ibChat.promptHistoryBySession";
+const promptHistoryMementoKey = "ibAcp.acpUi.promptHistoryBySession";
 
 const maxStoredPromptsPerSession = 50;
 
@@ -39,9 +39,9 @@ function readMap(context: ExtensionContext): PromptHistoryMap {
 }
 
 /**
- * Returns persisted composer prompt history lines for an IB Chat session (Arrow Up / Down).
+ * Returns persisted composer prompt history lines for an ACP UI session (Arrow Up / Down).
  */
-export function getIbChatPromptHistoryEntries(
+export function getAcpUiPromptHistoryEntries(
     context: ExtensionContext,
     sessionId: string,
 ): string[] {
@@ -59,7 +59,7 @@ export function getIbChatPromptHistoryEntries(
 /**
  * Persists composer prompt history for a session (most recent tail capped per session).
  */
-export function setIbChatPromptHistoryEntries(
+export function setAcpUiPromptHistoryEntries(
     context: ExtensionContext,
     sessionId: string,
     entries: string[],
@@ -80,7 +80,7 @@ export function setIbChatPromptHistoryEntries(
 /**
  * Removes stored prompt history when a chat session is deleted.
  */
-export function removeIbChatPromptHistoryEntries(
+export function removeAcpUiPromptHistoryEntries(
     context: ExtensionContext,
     sessionId: string,
 ): void {

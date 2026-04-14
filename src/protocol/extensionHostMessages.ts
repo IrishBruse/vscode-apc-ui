@@ -1,4 +1,4 @@
-import type { IbChatSessionModelSelection } from "../acp/session/sessionModels";
+import type { AcpUiSessionModelSelection } from "../acp/session/sessionModels";
 
 /** Plan entry forwarded from an ACP agent plan update. */
 export type PlanEntry = {
@@ -17,7 +17,7 @@ export type ToolCallDiffRow = {
 };
 
 /** Slash commands advertised by the agent via `available_commands_update`. */
-export type IbChatSlashCommand = {
+export type AcpUiSlashCommand = {
     name: string;
     description: string;
     inputHint?: string;
@@ -60,7 +60,7 @@ export type ExtensionToWebviewMessage =
           availableAcpAgents?: string[];
           /** Optional `--vscode-*` overrides applied on `document.documentElement`. */
           vscodeThemeVariables?: Record<string, string>;
-          sessionModels?: IbChatSessionModelSelection;
+          sessionModels?: AcpUiSessionModelSelection;
           promptHistory?: string[];
           /**
            * When true, the agent picker is read-only (agent was chosen when the chat was created).
@@ -71,7 +71,7 @@ export type ExtensionToWebviewMessage =
     | {
           type: "sessionModels";
           currentModelId: string;
-          availableModels: IbChatSessionModelSelection["availableModels"];
+          availableModels: AcpUiSessionModelSelection["availableModels"];
       }
     | {
           type: "acpAgentSelection";
@@ -104,7 +104,7 @@ export type ExtensionToWebviewMessage =
           toolTitle: string;
           options: { optionId: string; name: string }[];
       }
-    | { type: "slashCommands"; commands: IbChatSlashCommand[] }
+    | { type: "slashCommands"; commands: AcpUiSlashCommand[] }
     | { type: "appendPlan"; entries: PlanEntry[] }
     | { type: "turnComplete"; stopReason: string }
     | { type: "error"; message: string }

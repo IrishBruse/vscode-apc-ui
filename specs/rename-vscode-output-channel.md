@@ -1,4 +1,4 @@
-# Spec 5: Rename VS Code output channel to `APC UI RPC`
+# Spec 5: Rename VS Code output channel to `ACP UI RPC`
 
 ## Goal
 Standardize output channel naming for easier debugging and support.
@@ -8,5 +8,5 @@ Standardize output channel naming for easier debugging and support.
 - Update any docs/tests/snapshots that assert the old channel name.
 
 ## Acceptance Criteria
-- Output appears under `APC UI RPC` in VS Code.
+- Output appears under `ACP UI RPC` in VS Code.
 - No references to the old channel name remain in source or tests.

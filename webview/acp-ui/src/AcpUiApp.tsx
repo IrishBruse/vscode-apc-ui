@@ -1,4 +1,4 @@
-import "./IbChatApp.css";
+import "./AcpUiApp.css";
 import "./scrollRegions.css";
 import {
   Fragment,
@@ -14,7 +14,7 @@ import {
   useRef,
   useState,
 } from "react";
-import type { IbChatSlashCommand } from "../../../src/protocol/extensionHostMessages";
+import type { AcpUiSlashCommand } from "../../../src/protocol/extensionHostMessages";
 import {
   type ChatAction,
   chatReducer,
@@ -32,7 +32,7 @@ import {
   dataTransferLooksLikePathDrop,
 } from "./droppedFilePaths";
 
-export type IbChatAppProps = {
+export type AcpUiAppProps = {
   init: InitPayload;
   postSend: (body: string) => void;
   postCancel: () => void;
@@ -50,9 +50,9 @@ export type IbChatAppProps = {
 };
 
 /**
- * IB Chat editor webview: header, transcript, composer, and protocol-driven transcript updates.
+ * ACP UI editor webview: header, transcript, composer, and protocol-driven transcript updates.
  */
-export function IbChatApp({
+export function AcpUiApp({
   init,
   postSend,
   postCancel,
@@ -61,7 +61,7 @@ export function IbChatApp({
   postSavePromptHistory,
   postPermissionResponse,
   extensionDispatchRef,
-}: IbChatAppProps): ReactElement {
+}: AcpUiAppProps): ReactElement {
   const [state, dispatch] = useReducer(
     chatReducer,
     init,
@@ -185,7 +185,7 @@ export function IbChatApp({
     [state.promptInFlight, state.trace, state.openStreamIndex],
   );
 
-  const builtInSlashCommands = useMemo((): IbChatSlashCommand[] => {
+  const builtInSlashCommands = useMemo((): AcpUiSlashCommand[] => {
     return [
       {
         name: "clear",
@@ -200,7 +200,7 @@ export function IbChatApp({
 
   const mergedSlashCommands = useMemo(() => {
     const seen = new Set<string>();
-    const out: IbChatSlashCommand[] = [];
+    const out: AcpUiSlashCommand[] = [];
     for (const cmd of [...builtInSlashCommands, ...state.slashCommands]) {
       const key = cmd.name.toLowerCase();
       if (seen.has(key)) {

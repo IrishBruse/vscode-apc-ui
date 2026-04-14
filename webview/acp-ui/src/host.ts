@@ -11,7 +11,7 @@ declare function acquireVsCodeApi(): {
 /**
  * VS Code webview bridge. A standalone app can replace this with fetch, WebSocket, or another transport.
  */
-export function createVsCodeIbChatHost(): {
+export function createVsCodeAcpUiHost(): {
     post(message: WebviewToExtensionMessage): void;
     onExtensionMessage(
         handler: (message: ExtensionToWebviewMessage) => void,

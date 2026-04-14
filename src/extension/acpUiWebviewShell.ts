@@ -6,9 +6,9 @@ const webviewScriptName = "main.js";
 const webviewStyleName = "main.css";
 
 /**
- * HTML shell for the IB Chat webview: CSP, asset URIs, and root mount node.
+ * HTML shell for the ACP UI webview: CSP, asset URIs, and root mount node.
  */
-export function getIbChatWebviewHtml(
+export function getAcpUiWebviewHtml(
     extensionRoot: Uri,
     webview: Webview,
 ): string {

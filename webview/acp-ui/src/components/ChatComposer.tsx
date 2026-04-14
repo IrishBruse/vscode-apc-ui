@@ -5,20 +5,20 @@ import {
   useMemo,
 } from "react";
 import "./ChatComposer.css";
-import type { IbChatSessionModelSelection } from "../../../../src/acp/session/sessionModels";
-import type { IbChatSlashCommand } from "../../../../src/protocol/extensionHostMessages";
+import type { AcpUiSessionModelSelection } from "../../../../src/acp/session/sessionModels";
+import type { AcpUiSlashCommand } from "../../../../src/protocol/extensionHostMessages";
 
 export type ChatComposerProps = {
   activityLabel: string | null;
   /** Shown in the activity slot when nothing is in flight (e.g. workspace cwd). */
   workspacePathHint: string;
-  modelSelection: IbChatSessionModelSelection | null;
+  modelSelection: AcpUiSessionModelSelection | null;
   /** When true, model is shown as a label (standalone: after the first message). */
   modelPickerLocked: boolean;
   promptInFlight: boolean;
   /** When set, blocks the textarea (e.g. pending permission dialog). */
   inputBlocked: boolean;
-  slashCommands: IbChatSlashCommand[];
+  slashCommands: AcpUiSlashCommand[];
   draft: string;
   onDraftChange: (value: string) => void;
   onPickSessionModel: (modelId: string) => void;

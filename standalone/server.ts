@@ -1,5 +1,5 @@
 /**
- * Standalone WebSocket bridge for the IB Chat UI (dev). Reuses {@link AcpSessionBridge} and the
+ * Standalone WebSocket bridge for the ACP UI (dev). Reuses {@link AcpSessionBridge} and the
  * same protocol/mapping as the VS Code extension — unlike a duplicated inline ACP client.
  *
  * Usage: `npm run dev:standalone` (Vite + this server with `tsx --watch`).
@@ -22,7 +22,7 @@ import {
 import { NullAcpRpcNdjsonSink } from "../src/acp/ports/rpcNdjsonSink";
 import { AcpSessionBridge } from "../src/acp/session/acpSessionBridge";
 import { parseSessionModelsFromReadmeNdjson } from "../src/acp/session/readmeSessionModels";
-import type { IbChatSessionModelSelection } from "../src/acp/session/sessionModels";
+import type { AcpUiSessionModelSelection } from "../src/acp/session/sessionModels";
 import { FileAcpRpcNdjsonSink } from "../src/platform/node/fileRpcNdjsonSink";
 import { createNodeAcpSessionHostRuntime } from "../src/platform/node/nodeAcpSessionHostRuntime";
 import {
@@ -187,7 +187,7 @@ if (firstAgentConfig === undefined) {
     throw new Error("loadAgentConfigs returned empty");
 }
 
-function loadReadmeSessionModels(): IbChatSessionModelSelection | null {
+function loadReadmeSessionModels(): AcpUiSessionModelSelection | null {
     try {
         const text = readFileSync(
             join(STANDALONE_DIR, "mock/readme.ndjson"),
@@ -288,7 +288,7 @@ wss.on("connection", (ws: WebSocket) => {
             send({
                 type: "init",
                 sessionId,
-                title: "IB Chat (standalone)",
+                title: "ACP UI (standalone)",
                 workspaceLabel: process.cwd(),
                 agentVersionLabel: undefined,
                 acpAgentName: selectedAgentName,

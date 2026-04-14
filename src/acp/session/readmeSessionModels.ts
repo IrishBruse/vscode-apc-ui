@@ -1,12 +1,12 @@
 import type { SessionModelState } from "@agentclientprotocol/sdk";
-import type { IbChatSessionModelSelection } from "./sessionModels";
+import type { AcpUiSessionModelSelection } from "./sessionModels";
 
 /**
  * Extracts `result.models` from a captured ACP NDJSON log (e.g. `standalone/mock/readme.ndjson`).
  */
 export function parseSessionModelsFromReadmeNdjson(
     text: string,
-): IbChatSessionModelSelection | null {
+): AcpUiSessionModelSelection | null {
     for (const line of text.split("\n")) {
         const trimmed = line.trim();
         if (trimmed.length === 0) {

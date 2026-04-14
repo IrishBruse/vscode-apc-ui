@@ -1,7 +1,7 @@
-import type { IbChatSessionModelSelection } from "../../../src/acp/session/sessionModels";
+import type { AcpUiSessionModelSelection } from "../../../src/acp/session/sessionModels";
 import type {
     ExtensionToWebviewMessage,
-    IbChatSlashCommand,
+    AcpUiSlashCommand,
     PlanEntry,
     ToolCallDiffRow,
     ToolCallStatus,
@@ -51,9 +51,9 @@ export type ChatState = {
     toolIndexById: Map<string, number>;
     promptInFlight: boolean;
     errorText: string | null;
-    modelSelection: IbChatSessionModelSelection | null;
+    modelSelection: AcpUiSessionModelSelection | null;
     acpAgentSelection: AcpAgentSelectionState | null;
-    slashCommands: IbChatSlashCommand[];
+    slashCommands: AcpUiSlashCommand[];
     permissionPrompt: PermissionPromptState | null;
     /**
      * From host init: agent was fixed when the chat was created (VS Code sidebar flow).

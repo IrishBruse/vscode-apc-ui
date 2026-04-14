@@ -1,48 +1,48 @@
 import { randomUUID } from "node:crypto";
 
 /**
- * One saved IB Chat session listed in the Chats tree (in-memory until persistence exists).
+ * One saved ACP UI session listed in the Chats tree (in-memory until persistence exists).
  */
-export type IbChatSessionRecord = {
+export type AcpUiSessionRecord = {
     id: string;
     title: string;
     createdAt: number;
     agentName?: string;
 };
 
-const sessions: IbChatSessionRecord[] = [];
+const sessions: AcpUiSessionRecord[] = [];
 
 let activeId: string | null = null;
 
 /**
  * Returns sessions in creation order (oldest first).
  */
-export function listIbChatSessions(): IbChatSessionRecord[] {
+export function listAcpUiSessions(): AcpUiSessionRecord[] {
     return [...sessions].sort((a, b) => a.createdAt - b.createdAt);
 }
 
 /**
  * Returns the session id currently selected in the Chats list, if any.
  */
-export function getActiveIbChatSessionId(): string | null {
+export function getActiveAcpUiSessionId(): string | null {
     return activeId;
 }
 
 /**
  * Marks a session as active for the Chats tree.
  */
-export function setActiveIbChatSessionId(id: string | null): void {
+export function setActiveAcpUiSessionId(id: string | null): void {
     activeId = id;
 }
 
 /**
  * Appends a new session and returns it.
  */
-export function addIbChatSession(
+export function addAcpUiSession(
     title: string,
     options?: { agentName?: string },
-): IbChatSessionRecord {
-    const record: IbChatSessionRecord = {
+): AcpUiSessionRecord {
+    const record: AcpUiSessionRecord = {
         id: randomUUID(),
         title,
         createdAt: Date.now(),
@@ -55,7 +55,7 @@ export function addIbChatSession(
 /**
  * Removes a session by id and clears active selection when it pointed at that id.
  */
-export function removeIbChatSession(id: string): void {
+export function removeAcpUiSession(id: string): void {
     const index = sessions.findIndex((s) => s.id === id);
     if (index >= 0) {
         sessions.splice(index, 1);
@@ -68,7 +68,7 @@ export function removeIbChatSession(id: string): void {
 /**
  * Updates the stored ACP agent name for a session (for example when the user picks another agent in the editor).
  */
-export function setIbChatSessionAgentName(id: string, agentName: string): void {
+export function setAcpUiSessionAgentName(id: string, agentName: string): void {
     const row = sessions.find((s) => s.id === id);
     if (row !== undefined) {
         row.agentName = agentName;

@@ -16,7 +16,7 @@ export function ChatHeader({
     return (
         <header className="agent-header">
             <div className="agent-title-line">
-                IB Chat{" "}
+                ACP UI{" "}
                 <span className="agent-version">{agentVersionLabel ?? ""}</span>
             </div>
             <div className="agent-meta-line" title={workspaceText}>

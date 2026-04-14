@@ -1,7 +1,7 @@
 import type { ExtensionToWebviewMessage } from "../../../src/protocol/extensionHostMessages";
 import "./global.css";
 import "./boot.css";
-import { createVsCodeIbChatHost } from "./host";
+import { createVsCodeAcpUiHost } from "./host";
 import { type ChatView, type InitPayload, mountChatView } from "./ui";
 
 function isInitPayload(
@@ -22,7 +22,7 @@ bootLine.className = "acp-ui-boot";
 bootLine.textContent = "Connecting…";
 mount.appendChild(bootLine);
 
-const host = createVsCodeIbChatHost();
+const host = createVsCodeAcpUiHost();
 let view: ChatView | null = null;
 let initReceived = false;
 
