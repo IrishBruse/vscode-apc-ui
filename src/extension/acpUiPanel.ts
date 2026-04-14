@@ -109,6 +109,7 @@ async function ensureBridgeConnected(
         return bridge;
     } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
+        window.showErrorMessage(`Failed to connect to agent: ${message}`);
         postForSession(sessionId, {
             type: "error",
             message: `Failed to connect to agent: ${message}`,

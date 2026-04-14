@@ -116,6 +116,15 @@ export class AcpAgentProcess {
 
     async start(): Promise<acp.InitializeResponse> {
         const cwd = this.options.getWorkspaceRoot();
+        const env = { ...process.env, ...this.options.config.env };
+
+        console.info(
+            `[ACP Agent ${this.options.config.name}] spawning command="${this.options.config.command}" args=${JSON.stringify(this.options.config.args)} cwd="${cwd ?? "<undefined>"}"`,
+        );
+        // Helpful for diagnosing macOS PATH issues when VS Code is launched from GUI.
+        console.info(
+            `[ACP Agent ${this.options.config.name}] PATH="${env.PATH ?? "<undefined>"}"`,
+        );
 
         this.child = spawn(
             this.options.config.command,
@@ -123,19 +132,38 @@ export class AcpAgentProcess {
             {
                 stdio: ["pipe", "pipe", "pipe"],
                 cwd,
-                env: { ...process.env, ...this.options.config.env },
+                env,
             },
         );
 
         this.child.stderr?.on("data", (chunk: Buffer) => {
             const text = chunk.toString();
-            console.error(`[ACP Agent ${this.options.config.name}] ${text}`);
+            console.error(`[ACP Agent ${this.options.config.name}] stderr: ${text}`);
+        });
+
+        this.child.on("spawn", () => {
+            console.info(
+                `[ACP Agent ${this.options.config.name}] spawned pid=${this.child?.pid ?? "unknown"}`,
+            );
         });
 
         this.child.on("error", (err) => {
+            const nodeErr = err as NodeJS.ErrnoException;
             console.error(
-                `[ACP Agent ${this.options.config.name}] process error:`,
+                `[ACP Agent ${this.options.config.name}] process error code=${nodeErr.code ?? "unknown"} message="${nodeErr.message}" command="${this.options.config.command}"`,
                 err,
+            );
+        });
+
+        this.child.on("exit", (code, signal) => {
+            console.error(
+                `[ACP Agent ${this.options.config.name}] exited code=${code ?? "null"} signal=${signal ?? "null"}`,
+            );
+        });
+
+        this.child.on("close", (code, signal) => {
+            console.error(
+                `[ACP Agent ${this.options.config.name}] stdio closed code=${code ?? "null"} signal=${signal ?? "null"}`,
             );
         });
 
