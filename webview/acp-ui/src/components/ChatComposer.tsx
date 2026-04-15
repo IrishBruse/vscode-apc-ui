@@ -79,7 +79,6 @@ export function ChatComposer({
   const inflight =
     activityLabel !== null && activityLabel.length > 0;
   const activityDisplay = inflight ? activityLabel : workspacePathHint;
-
   return (
     <footer className="composer-frame">
       <div className="composer-top-bar">

@@ -30,3 +30,10 @@ export async function pickAcpAgentConfig(): Promise<
     }
     return configs.find((c) => c.name === picked);
 }
+
+/**
+ * Returns the configured default ACP agent (first entry), or undefined when none exist.
+ */
+export function getDefaultAcpAgentConfig(): AcpAgentConfig | undefined {
+    return getAcpAgentConfigsFromSettings()[0];
+}

@@ -533,6 +533,11 @@ export class AcpSessionBridge {
         return this.prompting;
     }
 
+    /** ACP session id after `connect`, used for persistence/restore metadata. */
+    get sessionId(): string | null {
+        return this.acpSessionId;
+    }
+
     /** Kills the agent process and releases resources. */
     dispose(): void {
         this.cancelPendingPermissions();

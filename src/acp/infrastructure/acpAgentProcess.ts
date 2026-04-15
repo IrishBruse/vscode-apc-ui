@@ -138,7 +138,9 @@ export class AcpAgentProcess {
 
         this.child.stderr?.on("data", (chunk: Buffer) => {
             const text = chunk.toString();
-            console.error(`[ACP Agent ${this.options.config.name}] stderr: ${text}`);
+            console.error(
+                `[ACP Agent ${this.options.config.name}] stderr: ${text}`,
+            );
         });
 
         this.child.on("spawn", () => {

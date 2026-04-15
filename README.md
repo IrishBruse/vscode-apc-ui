@@ -12,9 +12,9 @@ Open **ACP UI** from the activity bar to get a dedicated chat surface next to yo
 
 - **ACP UI** webview: ACP-backed chat in an editor tab or panel (see above). The composer and quick actions live along the bottom of the panel:
 
-  ![Composer and input area](./docs/Input.png)
+  ![ACP UI panel with conversation and composer](docs/Fullscreen.png)
 
-  *Prompt field, attachments, and controls at the foot of ACP UI.*
+  *Full panel: messages, prompt field, attachments, and controls.*
 
 - **Chats** sidebar under the **ACP UI** activity bar: list sessions, open, refresh, delete.
 - **Agent picker**: choose which configured agent backs the current chat (agents come from `ib-acp-ui.agents`):

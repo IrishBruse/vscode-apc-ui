@@ -25,4 +25,14 @@ A plan with some code snippet of only the major changes that will be added leave
 
 ```
 
-Move the spec to the `done/` once finished
+# Folder Structure
+
+- `specs/wip/`: draft specs being actively written/refined.
+- `specs/ready/`: approved specs ready for implementation.
+- `specs/done/`: completed specs with implementation finished.
+
+# Workflow
+
+- Create or edit draft specs in `specs/wip/`.
+- Move implementation-ready specs into `specs/ready/`.
+- After implementation is complete, move specs into `specs/done/`.

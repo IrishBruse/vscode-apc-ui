@@ -16,7 +16,10 @@ import { createDefaultAcpSessionHostRuntime } from "../platform/vscode/defaultHo
 import type { ExtensionToWebviewMessage } from "../protocol/extensionHostMessages";
 import { tryParseWebviewMessage } from "../protocol/extensionHostMessages";
 import { registerCommandIB } from "../utils/vscode";
-import { pickAcpAgentConfig } from "./acpUiAgentPicker";
+import {
+    getDefaultAcpAgentConfig,
+    pickAcpAgentConfig,
+} from "./acpUiAgentPicker";
 import {
     getAcpUiPromptHistoryEntries,
     setAcpUiPromptHistoryEntries,
@@ -26,7 +29,9 @@ import {
     listAcpUiSessions,
     renameAcpUiSession,
     setAcpUiSessionAgentName,
+    setAcpUiSessionRuntimeSessionId,
     setActiveAcpUiSessionId,
+    touchAcpUiSession,
 } from "./acpUiSessionsStore";
 import { getAcpUiWebviewHtml } from "./acpUiWebviewShell";
 import { getAcpUiExtensionActivation } from "./extensionServices";
@@ -106,6 +111,10 @@ async function ensureBridgeConnected(
     pendingModelIdBySessionId.delete(sessionId);
     try {
         await bridge.connect(preferred);
+        const runtimeSessionId = bridge.sessionId;
+        if (runtimeSessionId !== null) {
+            setAcpUiSessionRuntimeSessionId(sessionId, runtimeSessionId);
+        }
         return bridge;
     } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
@@ -134,6 +143,8 @@ export function openOrRevealAcpUiEditor(
         existing.title = title;
         existing.iconPath = acpUiPanelTabIcon;
         existing.reveal(ViewColumn.Active);
+        touchAcpUiSession(sessionId);
+        refreshChatsListHandler?.();
         return;
     }
     agentConfigBySessionId.set(sessionId, agentConfig);
@@ -337,17 +348,41 @@ export function registerAcpUiPanel(
     refreshChatsListHandler = refreshChatsList;
     registerCommandIB(
         "ib-acp-ui.openChat",
-        () => void openNewAcpUi(context, refreshChatsList),
+        () => void openNewAcpUiWithDefaultAgent(context, refreshChatsList),
         context,
     );
     registerCommandIB(
         "ib-acp-ui.newAcpUiInEditor",
-        () => void openNewAcpUi(context, refreshChatsList),
+        () => void openNewAcpUiWithDefaultAgent(context, refreshChatsList),
+        context,
+    );
+    registerCommandIB(
+        "ib-acp-ui.newAcpUiInEditorPickAgent",
+        () => void openNewAcpUiWithAgentPicker(context, refreshChatsList),
+        context,
+    );
+    registerCommandIB(
+        "ib-acp-ui.newAcpUiFromTitleMenu",
+        () => void openNewAcpUiWithAgentPicker(context, refreshChatsList),
         context,
     );
 }
 
-async function openNewAcpUi(
+async function openNewAcpUiWithDefaultAgent(
+    context: ExtensionContext,
+    refreshChatsList: () => void,
+): Promise<void> {
+    const agentConfig = getDefaultAcpAgentConfig();
+    if (agentConfig === undefined) {
+        window.showInformationMessage(
+            "No ACP agents configured. Add entries to ib-acp-ui.agents in settings.",
+        );
+        return;
+    }
+    openNewAcpUi(context, refreshChatsList, agentConfig);
+}
+
+async function openNewAcpUiWithAgentPicker(
     context: ExtensionContext,
     refreshChatsList: () => void,
 ): Promise<void> {
@@ -355,6 +390,14 @@ async function openNewAcpUi(
     if (agentConfig === undefined) {
         return;
     }
+    openNewAcpUi(context, refreshChatsList, agentConfig);
+}
+
+function openNewAcpUi(
+    context: ExtensionContext,
+    refreshChatsList: () => void,
+    agentConfig: AcpAgentConfig,
+): void {
     const nextIndex = listAcpUiSessions().length + 1;
     const created = addAcpUiSession(`Chat ${nextIndex}`, {
         agentName: agentConfig.name,

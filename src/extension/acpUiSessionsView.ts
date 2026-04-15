@@ -26,6 +26,7 @@ import {
     listAcpUiSessions,
     removeAcpUiSession,
     setActiveAcpUiSessionId,
+    touchAcpUiSession,
 } from "./acpUiSessionsStore";
 
 const viewIdAcpUiSessions = "acpUiSessionsView";
@@ -189,6 +190,15 @@ export class AcpUiSessionsViewProvider
             row.agentName !== undefined
                 ? getAcpAgentConfigByName(row.agentName)
                 : getAcpAgentConfigsFromSettings()[0];
+        if (agentConfig === undefined) {
+            window.showErrorMessage(
+                row.agentName !== undefined
+                    ? `Cannot open chat "${row.title}" because agent "${row.agentName}" is no longer configured. Re-add that agent or delete this chat.`
+                    : `Cannot open chat "${row.title}" because no ACP agents are configured.`,
+            );
+            return;
+        }
+        touchAcpUiSession(sessionId);
         openOrRevealAcpUiEditor(
             this.extensionContext,
             sessionId,

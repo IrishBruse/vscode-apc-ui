@@ -113,9 +113,16 @@
             },
             {
                 "command": "ib-acp-ui.newAcpUiInEditor",
-                "title": "New ACP UI in Editor",
+                "title": "New ACP UI Chat (Default Agent)",
                 "shortTitle": "New in Editor",
                 "icon": "$(add)",
+                "category": "IrishBruse ACP"
+            },
+            {
+                "command": "ib-acp-ui.newAcpUiInEditorPickAgent",
+                "title": "New ACP UI Chat (Pick Agent)",
+                "shortTitle": "Pick Agent",
+                "icon": "$(chevron-down)",
                 "category": "IrishBruse ACP"
             },
             {
@@ -167,12 +174,17 @@
             ],
             "view/title": [
                 {
-                    "command": "ib-acp-ui.refreshAcpUiSessions",
+                    "command": "ib-acp-ui.newAcpUiInEditor",
                     "when": "view == acpUiSessionsView",
                     "group": "navigation"
                 },
                 {
-                    "command": "ib-acp-ui.newAcpUiInEditor",
+                    "command": "ib-acp-ui.newAcpUiInEditorPickAgent",
+                    "when": "view == acpUiSessionsView",
+                    "group": "navigation"
+                },
+                {
+                    "command": "ib-acp-ui.refreshAcpUiSessions",
                     "when": "view == acpUiSessionsView",
                     "group": "navigation"
                 }
