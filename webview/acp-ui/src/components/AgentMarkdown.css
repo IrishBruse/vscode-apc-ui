@@ -88,6 +88,22 @@
     line-height: 1.4;
 }
 
+.agent-markdown .code-token-keyword {
+    color: var(--vscode-symbolIcon-keywordForeground, #c586c0);
+}
+
+.agent-markdown .code-token-string {
+    color: var(--vscode-stringForeground, #ce9178);
+}
+
+.agent-markdown .code-token-number {
+    color: var(--vscode-numberLiteralForeground, #b5cea8);
+}
+
+.agent-markdown .code-token-comment {
+    color: var(--vscode-editorLineNumber-foreground, #6a9955);
+}
+
 .agent-markdown blockquote {
     margin: 0.5em 0;
     padding: 0.2em 0 0.2em 0.75em;

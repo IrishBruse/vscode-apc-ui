@@ -33,3 +33,8 @@
 - Create or edit draft specs in `specs/wip/`.
 - Move implementation-ready specs into `specs/ready/`.
 - After implementation is complete, move specs into `specs/done/`.
+
+# TODOs
+
+Take a line of the `TODOS.md` and expand it into a spec in `ready`
+then remove the line from `TDOOS.md`.

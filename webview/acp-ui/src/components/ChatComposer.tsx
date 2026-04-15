@@ -7,6 +7,7 @@ import {
 import "./ChatComposer.css";
 import type { AcpUiSessionModelSelection } from "../../../../src/acp/session/sessionModels";
 import type { AcpUiSlashCommand } from "../../../../src/protocol/extensionHostMessages";
+import { buildComposerAutocompleteState, wrapIndex } from "./composerAutocomplete";
 
 export type ChatComposerProps = {
   activityLabel: string | null;
@@ -19,6 +20,8 @@ export type ChatComposerProps = {
   /** When set, blocks the textarea (e.g. pending permission dialog). */
   inputBlocked: boolean;
   slashCommands: AcpUiSlashCommand[];
+  workspaceFiles: string[];
+  suggestionIndex: number;
   draft: string;
   onDraftChange: (value: string) => void;
   onPickSessionModel: (modelId: string) => void;
@@ -40,6 +43,8 @@ export function ChatComposer({
   promptInFlight,
   inputBlocked,
   slashCommands,
+  workspaceFiles,
+  suggestionIndex,
   draft,
   onDraftChange,
   onPickSessionModel,
@@ -48,23 +53,20 @@ export function ChatComposer({
   onKeyDown,
   composerInputRef,
 }: ChatComposerProps): ReactElement {
-  const textareaDisabled = promptInFlight || inputBlocked;
-  const slashQuery = useMemo(() => {
-    const line = draft.split("\n")[0] ?? "";
-    const match = line.match(/^\/([\w-]*)$/);
-    if (match === null || slashCommands.length === 0) {
-      return null;
-    }
-    return match[1] ?? "";
-  }, [draft, slashCommands]);
-  const slashMatches = useMemo(() => {
-    if (slashQuery === null) {
-      return [];
-    }
-    const q = slashQuery.toLowerCase();
-    return slashCommands.filter((c) => c.name.toLowerCase().startsWith(q));
-  }, [slashQuery, slashCommands]);
-  const showSlashMenu = slashMatches.length > 0 && slashQuery !== null;
+  const textareaDisabled = inputBlocked;
+  const autocomplete = useMemo(() => {
+    const caret = draft.length;
+    return buildComposerAutocompleteState({
+      draft,
+      caret,
+      slashCommands,
+      workspaceFiles,
+    });
+  }, [draft, slashCommands, workspaceFiles]);
+  const activeIndex =
+    autocomplete !== null
+      ? wrapIndex(suggestionIndex, autocomplete.items.length)
+      : 0;
   const modelSel = modelSelection;
   const modelReady = modelSel !== null && modelSel.availableModels.length > 0;
   const modelSelectDisabled =
@@ -133,28 +135,37 @@ export function ChatComposer({
         </div>
       </div>
       <div className="composer-input-wrap">
-        {showSlashMenu ? (
+        {autocomplete !== null ? (
           <div
             className="composer-slash-menu"
             role="listbox"
-            aria-label="Slash commands"
+            aria-label={
+              autocomplete.mode === "slash" ? "Slash commands" : "Workspace files"
+            }
           >
-            {slashMatches.map((cmd) => (
+            {autocomplete.items.map((item, index) => (
               <button
-                key={cmd.name}
+                key={item.key}
                 type="button"
                 role="option"
-                className="composer-slash-item"
+                className={
+                  index === activeIndex
+                    ? "composer-slash-item composer-slash-item--active"
+                    : "composer-slash-item"
+                }
                 onClick={() => {
-                  onDraftChange(`/${cmd.name} `);
+                  onDraftChange(
+                    draft.replace(
+                      /(?:^|\s)(?:\/[^\s]*|@[^\s]*)$/,
+                      (match) =>
+                        `${match.startsWith(" ") ? " " : ""}${item.insertText.trimEnd()}`,
+                    ),
+                  );
                 }}
               >
-                <span className="composer-slash-name">/{cmd.name}</span>
-                <span className="composer-slash-desc">{cmd.description}</span>
-                {cmd.source !== undefined && cmd.source.length > 0 ? (
-                  <span className="composer-slash-source" title={cmd.source}>
-                    {cmd.source}
-                  </span>
+                <span className="composer-slash-name">{item.primary}</span>
+                {item.secondary !== undefined && item.secondary.length > 0 ? (
+                  <span className="composer-slash-desc">{item.secondary}</span>
                 ) : null}
               </button>
             ))}

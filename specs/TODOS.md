@@ -1,13 +1,2 @@
-# ACP UI Spec Backlog
-
-## Ready Specs
-- `ready/spec-thought-chunk-spacing.md`
-- `ready/spec-code-syntax-highlighting.md`
-- `ready/spec-chat-scrollbar-layout.md`
-- `ready/spec-paste-newline-preservation.md`
-- `ready/spec-intellisense-arrow-navigation.md`
-- `ready/spec-editor-ctrl-c-cancel.md`
-- `ready/spec-chat-input-interrupt-while-running.md`
-
-## WIP Specs
-- `wip/desktop-app.md`
+- Make the scrollbar for the chat app on the very right so the chat is full width for scrolling with the mouse just make the chat items the lower width
+-

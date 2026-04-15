@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { chatReducer, createInitialChatState } from "./chatReducer";
+import {
+    chatReducer,
+    createInitialChatState,
+    joinThoughtChunks,
+} from "./chatReducer";
 
 describe("chatReducer", () => {
     it("merges appendAgentThought chunks into one thought row", () => {
@@ -22,6 +26,18 @@ describe("chatReducer", () => {
         expect(row.durationMs).toBe(700);
         expect(row.text).toContain("Considering test execution");
         expect(row.text).toContain("Need to validate");
+    });
+
+    it("adds one space between adjacent thought words", () => {
+        expect(joinThoughtChunks("hello", "world")).toBe("hello world");
+        expect(joinThoughtChunks("hello ", "world")).toBe("hello world");
+        expect(joinThoughtChunks("hello", ", world")).toBe("hello, world");
+    });
+
+    it("does not alter spacing inside fenced code block streams", () => {
+        expect(joinThoughtChunks("```ts\nconst x", "=1;\n```")).toBe(
+            "```ts\nconst x=1;\n```",
+        );
     });
 
     it("merges appendToolCall into an existing tool row from an earlier updateToolCall", () => {

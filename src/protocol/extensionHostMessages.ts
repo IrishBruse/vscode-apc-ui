@@ -83,6 +83,8 @@ export type ExtensionToWebviewMessage =
           sessionId: string;
           title: string;
           workspaceLabel?: string;
+          /** Relative workspace file paths used by `@` autocomplete in the composer. */
+          workspaceFiles?: string[];
           agentVersionLabel?: string;
           acpAgentName?: string;
           /** Display names from `ib-acp-ui.agents` for the agent picker. */

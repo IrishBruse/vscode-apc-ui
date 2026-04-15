@@ -20,7 +20,8 @@ export type StoredChatItem = {
     updatedAt: number;
 };
 
-const chatsStorageKey = "acpUi.chats.v1";
+const chatsStorageKey = "acpUi.chats.v2";
+const legacyGlobalChatsStorageKey = "acpUi.chats.v1";
 const sessions: AcpUiSessionRecord[] = [];
 let activeId: string | null = null;
 let extensionContext: ExtensionContext | null = null;
@@ -50,7 +51,7 @@ function persistSessions(): void {
             sessionId: row.sessionId,
             updatedAt: row.updatedAt,
         }));
-    void extensionContext.globalState.update(chatsStorageKey, payload);
+    void extensionContext.workspaceState.update(chatsStorageKey, payload);
 }
 
 function markUpdated(sessionId: string): void {
@@ -63,7 +64,7 @@ function markUpdated(sessionId: string): void {
 }
 
 /**
- * Initializes in-memory chats from extension global state.
+ * Initializes in-memory chats from extension workspace state.
  */
 export function initializeAcpUiSessionsStore(
     context: ExtensionContext,
@@ -73,17 +74,24 @@ export function initializeAcpUiSessionsStore(
     logWarn = options?.log ?? null;
     sessions.length = 0;
     activeId = null;
-    const raw = context.globalState.get<unknown>(chatsStorageKey);
-    const restored = parseStoredChatItems(raw);
-    if (restored === null) {
+    const raw = context.workspaceState.get<unknown>(chatsStorageKey);
+    const legacyGlobalRaw = context.globalState.get<unknown>(
+        legacyGlobalChatsStorageKey,
+    );
+    const migrated =
+        raw === undefined && Array.isArray(legacyGlobalRaw)
+            ? legacyGlobalRaw
+            : raw;
+    const restoredWithMigration = parseStoredChatItems(migrated);
+    if (restoredWithMigration === null) {
         logWarn?.(
-            "Ignored malformed persisted chat storage at acpUi.chats.v1; starting with an empty chats list.",
+            "Ignored malformed persisted chat storage at acpUi.chats.v2; starting with an empty chats list.",
         );
-        void context.globalState.update(chatsStorageKey, []);
+        void context.workspaceState.update(chatsStorageKey, []);
         return;
     }
     sessions.push(
-        ...restored.map((row) => ({
+        ...restoredWithMigration.map((row) => ({
             id: row.id,
             title: row.title,
             updatedAt: row.updatedAt,
@@ -92,6 +100,9 @@ export function initializeAcpUiSessionsStore(
         })),
     );
     activeId = sessions[0]?.id ?? null;
+    if (raw === undefined && Array.isArray(legacyGlobalRaw)) {
+        persistSessions();
+    }
 }
 
 export function parseStoredChatItems(raw: unknown): StoredChatItem[] | null {
@@ -130,10 +141,10 @@ export function parseStoredChatItems(raw: unknown): StoredChatItem[] | null {
 }
 
 /**
- * Returns sessions by most-recent activity first.
+ * Returns sessions in stable insertion order.
  */
 export function listAcpUiSessions(): AcpUiSessionRecord[] {
-    return [...sessions].sort((a, b) => b.updatedAt - a.updatedAt);
+    return [...sessions];
 }
 
 /**

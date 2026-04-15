@@ -24,6 +24,11 @@ import {
   type TraceItem,
 } from "./chatReducer";
 import { ChatComposer } from "./components/ChatComposer";
+import {
+  buildComposerAutocompleteState,
+  wrapIndex,
+} from "./components/composerAutocomplete";
+import { shouldCancelRunOnCtrlC } from "./components/composerKeybindings";
 import { CursorAskQuestionDialog } from "./components/CursorAskQuestionDialog";
 import { CursorCreatePlanDialog } from "./components/CursorCreatePlanDialog";
 import { PermissionDialog } from "./components/PermissionDialog";
@@ -105,6 +110,7 @@ export function AcpUiApp({
   const stickToBottomRef = useRef(true);
   const composerTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [fileDragActive, setFileDragActive] = useState(false);
+  const [composerSuggestionIndex, setComposerSuggestionIndex] = useState(0);
 
   const scrollTraceToBottomIfPinned = useCallback((): void => {
     const el = traceRef.current;
@@ -250,14 +256,15 @@ export function AcpUiApp({
   const onDraftChange = useCallback((value: string): void => {
     setDraft(value);
     setPromptHistoryBrowse((browse) => (browse !== null ? null : browse));
+    setComposerSuggestionIndex(0);
   }, []);
 
   const submit = (): void => {
-    if (state.promptInFlight || state.permissionPrompt !== null) {
+    if (state.permissionPrompt !== null) {
       return;
     }
-    const body = draft.trim();
-    if (body.length === 0) {
+    const body = draft;
+    if (body.trim().length === 0) {
       return;
     }
     const asCommand = body.toLowerCase();
@@ -319,6 +326,69 @@ export function AcpUiApp({
     const end = target.selectionEnd ?? 0;
     const mod =
       event.shiftKey || event.ctrlKey || event.metaKey || event.altKey;
+    const autocomplete = buildComposerAutocompleteState({
+      draft,
+      caret: start,
+      slashCommands: mergedSlashCommands,
+      workspaceFiles: init.workspaceFiles ?? [],
+    });
+    const hasSelection = start !== end;
+
+    if (
+      shouldCancelRunOnCtrlC({
+        key: event.key,
+        ctrlKey: event.ctrlKey,
+        metaKey: event.metaKey,
+        altKey: event.altKey,
+        shiftKey: event.shiftKey,
+        hasSelection,
+        promptInFlight: state.promptInFlight,
+      })
+    ) {
+      event.preventDefault();
+      postCancel();
+      return;
+    }
+
+    if (autocomplete !== null && event.key === "Escape") {
+      event.preventDefault();
+      setComposerSuggestionIndex(0);
+      return;
+    }
+
+    if (autocomplete !== null && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
+      event.preventDefault();
+      const delta = event.key === "ArrowDown" ? 1 : -1;
+      setComposerSuggestionIndex((current) =>
+        wrapIndex(current + delta, autocomplete.items.length),
+      );
+      return;
+    }
+
+    if (autocomplete !== null && event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      const nextIndex = wrapIndex(
+        composerSuggestionIndex,
+        autocomplete.items.length,
+      );
+      const selected = autocomplete.items[nextIndex];
+      if (selected !== undefined) {
+        const left = draft.slice(0, start);
+        const lineStart = left.lastIndexOf("\n") + 1;
+        const prefixToken = autocomplete.mode === "slash" ? "/" : "@";
+        const tokenStart = left.lastIndexOf(prefixToken);
+        if (tokenStart >= lineStart) {
+          const right = draft.slice(start);
+          const consumed = right.match(/^[^\s]*/)?.[0] ?? "";
+          const nextDraft =
+            draft.slice(0, tokenStart) + selected.insertText + right.slice(consumed.length);
+          setDraft(nextDraft);
+          setPromptHistoryBrowse(null);
+          setComposerSuggestionIndex(0);
+          return;
+        }
+      }
+    }
 
     if (event.key === "ArrowUp" && !mod) {
       if (promptHistoryBrowse !== null) {
@@ -363,6 +433,9 @@ export function AcpUiApp({
 
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
+      if (state.promptInFlight) {
+        postCancel();
+      }
       submit();
     }
   };
@@ -536,6 +609,8 @@ export function AcpUiApp({
               state.createPlanPrompt !== null
             }
             slashCommands={mergedSlashCommands}
+            workspaceFiles={init.workspaceFiles ?? []}
+            suggestionIndex={composerSuggestionIndex}
             draft={draft}
             onDraftChange={onDraftChange}
             onPickSessionModel={(modelId) => {

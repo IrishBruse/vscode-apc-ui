@@ -181,7 +181,7 @@ function appendAgentThought(
             const trace = state.trace.slice();
             trace[open] = {
                 type: "thought",
-                text: existing.text + text,
+                text: joinThoughtChunks(existing.text, text),
                 ...(mergedDuration !== undefined
                     ? { durationMs: mergedDuration }
                     : {}),
@@ -202,6 +202,46 @@ function appendAgentThought(
         trace,
         openStreamIndex: trace.length - 1,
     };
+}
+
+function isWordChar(char: string): boolean {
+    return /[\p{L}\p{N}_]/u.test(char);
+}
+
+function opensFenceBoundary(text: string): boolean {
+    const fences = text.match(/```/g);
+    return (fences?.length ?? 0) % 2 === 1;
+}
+
+function startsWithPunctuation(text: string): boolean {
+    return /^[,.;:!?]/.test(text);
+}
+
+/**
+ * Joins streamed thought chunks with natural spacing outside fenced code blocks.
+ */
+export function joinThoughtChunks(existing: string, incoming: string): string {
+    if (existing.length === 0 || incoming.length === 0) {
+        return existing + incoming;
+    }
+    if (opensFenceBoundary(existing)) {
+        return existing + incoming;
+    }
+    const existingEndsWithWhitespace = /\s$/.test(existing);
+    const incomingStartsWithWhitespace = /^\s/.test(incoming);
+    if (existingEndsWithWhitespace || incomingStartsWithWhitespace) {
+        return existing + incoming;
+    }
+    const existingLast = existing.at(-1) ?? "";
+    const incomingFirst = incoming[0] ?? "";
+    if (
+        isWordChar(existingLast) &&
+        isWordChar(incomingFirst) &&
+        !startsWithPunctuation(incoming)
+    ) {
+        return `${existing} ${incoming}`;
+    }
+    return existing + incoming;
 }
 
 function appendToolCall(

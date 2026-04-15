@@ -4,8 +4,6 @@
     flex-direction: column;
     min-height: 0;
     width: 100%;
-    max-width: min(720px, 100%);
-    margin-inline: auto;
 }
 
 .acp-ui-shell.acp-ui-shell--file-drag {
@@ -35,11 +33,18 @@
     flex: 1;
     min-height: 0;
     overflow: auto;
-    padding-right: 4px;
+    width: 100%;
     color: var(--vscode-foreground);
 }
 
 .acp-ui-composer-stack {
     position: relative;
     flex-shrink: 0;
+    width: min(720px, 100%);
+    margin-inline: auto;
+}
+
+.agent-trace > div {
+    width: min(720px, 100%);
+    margin-inline: auto;
 }

@@ -2,6 +2,10 @@ import "./AgentMarkdown.css";
 import type { ReactElement } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import {
+    languageFromClassName,
+    renderHighlightedCode,
+} from "./codeHighlighting";
 
 export type AgentMarkdownProps = {
     /** Full assistant message text; updates as streaming chunks arrive. */
@@ -23,7 +27,30 @@ export function AgentMarkdown({ text }: AgentMarkdownProps): ReactElement {
     }
     return (
         <div className="agent-markdown">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                    code(props) {
+                        const { className, children, ...rest } = props;
+                        const language = languageFromClassName(className);
+                        const codeText = String(children).replace(/\n$/, "");
+                        if (!className) {
+                            return (
+                                <code {...rest} className={className}>
+                                    {children}
+                                </code>
+                            );
+                        }
+                        return (
+                            <code {...rest} className={className}>
+                                {renderHighlightedCode(language, codeText)}
+                            </code>
+                        );
+                    },
+                }}
+            >
+                {text}
+            </ReactMarkdown>
         </div>
     );
 }

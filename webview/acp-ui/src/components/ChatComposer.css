@@ -187,6 +187,11 @@
     outline: none;
 }
 
+.composer-slash-item--active {
+    background: var(--vscode-list-activeSelectionBackground);
+    color: var(--vscode-list-activeSelectionForeground, var(--vscode-foreground));
+}
+
 .composer-slash-name {
     flex-shrink: 0;
     font-weight: 600;

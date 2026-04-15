@@ -1,5 +1,6 @@
 import {
     type ExtensionContext,
+    RelativePattern,
     ThemeIcon,
     ViewColumn,
     type WebviewPanel,
@@ -46,6 +47,27 @@ const bridgesBySessionId = new Map<string, AcpSessionBridge>();
 const pendingModelIdBySessionId = new Map<string, string>();
 const agentConfigBySessionId = new Map<string, AcpAgentConfig | undefined>();
 let refreshChatsListHandler: (() => void) | undefined;
+const maxWorkspaceFileAutocompleteEntries = 1500;
+
+async function workspaceFilesForAutocomplete(): Promise<string[] | undefined> {
+    const folder = workspace.workspaceFolders?.[0];
+    if (folder === undefined) {
+        return undefined;
+    }
+    const uris = await workspace.findFiles(
+        new RelativePattern(folder, "**/*"),
+        new RelativePattern(
+            folder,
+            "**/{node_modules,.git,dist,build,out,coverage,.next}/**",
+        ),
+        maxWorkspaceFileAutocompleteEntries,
+    );
+    const files = uris
+        .map((uri) => workspace.asRelativePath(uri, false))
+        .filter((p) => p.length > 0)
+        .sort((a, b) => a.localeCompare(b));
+    return files.length > 0 ? files : undefined;
+}
 
 export function renameAcpUiSessionTitle(
     sessionId: string,
@@ -175,36 +197,40 @@ export function openOrRevealAcpUiEditor(
         }
 
         if (parsed.type === "ready") {
-            const pkg = context.extension.packageJSON as { version?: string };
-            const versionRaw = pkg.version;
-            const agentVersionLabel =
-                typeof versionRaw === "string" && versionRaw.length > 0
-                    ? `v${versionRaw}`
-                    : undefined;
-            const folder = workspace.workspaceFolders?.[0];
-            const workspaceLabel =
-                folder !== undefined ? folder.uri.fsPath : undefined;
-            const configs = getAcpAgentConfigsFromSettings();
-            const availableNames = configs.map((c) => c.name);
-            const defaultAgent = agentConfig ?? configs[0];
-            const promptHistory = getAcpUiPromptHistoryEntries(
-                context,
-                sessionId,
-            );
-            const initPayload: ExtensionToWebviewMessage = {
-                type: "init",
-                sessionId,
-                title,
-                workspaceLabel,
-                agentVersionLabel,
-                acpAgentName: defaultAgent?.name,
-                lockSessionAgent: true,
-                ...(availableNames.length > 0
-                    ? { availableAcpAgents: availableNames }
-                    : {}),
-                ...(promptHistory.length > 0 ? { promptHistory } : {}),
-            };
-            void Promise.resolve().then(() => {
+            void Promise.resolve().then(async () => {
+                const pkg = context.extension.packageJSON as {
+                    version?: string;
+                };
+                const versionRaw = pkg.version;
+                const agentVersionLabel =
+                    typeof versionRaw === "string" && versionRaw.length > 0
+                        ? `v${versionRaw}`
+                        : undefined;
+                const folder = workspace.workspaceFolders?.[0];
+                const workspaceLabel =
+                    folder !== undefined ? folder.uri.fsPath : undefined;
+                const configs = getAcpAgentConfigsFromSettings();
+                const availableNames = configs.map((c) => c.name);
+                const defaultAgent = agentConfig ?? configs[0];
+                const promptHistory = getAcpUiPromptHistoryEntries(
+                    context,
+                    sessionId,
+                );
+                const workspaceFiles = await workspaceFilesForAutocomplete();
+                const initPayload: ExtensionToWebviewMessage = {
+                    type: "init",
+                    sessionId,
+                    title,
+                    workspaceLabel,
+                    agentVersionLabel,
+                    acpAgentName: defaultAgent?.name,
+                    lockSessionAgent: true,
+                    ...(workspaceFiles !== undefined ? { workspaceFiles } : {}),
+                    ...(availableNames.length > 0
+                        ? { availableAcpAgents: availableNames }
+                        : {}),
+                    ...(promptHistory.length > 0 ? { promptHistory } : {}),
+                };
                 void post(initPayload);
                 void ensureBridgeConnected(sessionId);
             });
@@ -228,6 +254,9 @@ export function openOrRevealAcpUiEditor(
             void (async () => {
                 const b = await ensureBridgeConnected(sessionId);
                 if (b !== undefined) {
+                    if (b.isPrompting) {
+                        await b.cancel();
+                    }
                     await b.prompt(parsed.body);
                 }
             })();

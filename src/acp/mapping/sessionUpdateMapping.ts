@@ -632,7 +632,7 @@ export function sessionUpdateToWebviewMessages(
                 thoughtUpdate.content?.type === "text"
                     ? thoughtUpdate.content.text
                     : undefined;
-            const text = (textFromBlock ?? thoughtUpdate.text ?? "").trim();
+            const text = textFromBlock ?? thoughtUpdate.text ?? "";
             if (text.length === 0) {
                 return [];
             }

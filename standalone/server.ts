@@ -6,7 +6,7 @@
  */
 
 import { randomUUID } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -67,6 +67,62 @@ type JsonRpcResponse = {
 };
 
 const fixtureLineDelayMs = 100;
+const maxWorkspaceFileAutocompleteEntries = 1500;
+const ignoredWorkspaceDirs = new Set([
+    ".git",
+    "node_modules",
+    "dist",
+    "build",
+    "out",
+    "coverage",
+    ".next",
+]);
+
+function workspaceFilesForAutocomplete(
+    workspaceRoot: string,
+): string[] | undefined {
+    const out: string[] = [];
+    const stack: string[] = [workspaceRoot];
+    while (
+        stack.length > 0 &&
+        out.length < maxWorkspaceFileAutocompleteEntries
+    ) {
+        const current = stack.pop();
+        if (current === undefined) {
+            continue;
+        }
+        const entries = readdirSync(current, { withFileTypes: true });
+        for (const entry of entries) {
+            if (entry.name.startsWith(".") && entry.name !== ".github") {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+            }
+            if (entry.isDirectory()) {
+                if (ignoredWorkspaceDirs.has(entry.name)) {
+                    continue;
+                }
+                stack.push(join(current, entry.name));
+                continue;
+            }
+            if (!entry.isFile()) {
+                continue;
+            }
+            const absolutePath = join(current, entry.name);
+            const relativePath = absolutePath
+                .slice(workspaceRoot.length)
+                .replace(/^\/+/, "");
+            if (relativePath.length > 0) {
+                out.push(relativePath);
+            }
+            if (out.length >= maxWorkspaceFileAutocompleteEntries) {
+                break;
+            }
+        }
+    }
+    out.sort((a, b) => a.localeCompare(b));
+    return out.length > 0 ? out : undefined;
+}
 
 function resolveFixture(body: string): string | null {
     const candidate = body.trim();
@@ -284,6 +340,7 @@ wss.on("connection", (ws: WebSocket) => {
         }
 
         if (parsed.type === "ready") {
+            const workspaceFiles = workspaceFilesForAutocomplete(process.cwd());
             const seed = loadReadmeSessionModels();
             send({
                 type: "init",
@@ -293,6 +350,7 @@ wss.on("connection", (ws: WebSocket) => {
                 agentVersionLabel: undefined,
                 acpAgentName: selectedAgentName,
                 availableAcpAgents: agentConfigs.map((c) => c.name),
+                ...(workspaceFiles !== undefined ? { workspaceFiles } : {}),
                 sessionModels: seed ?? undefined,
                 lockSessionAgent: false,
             });
@@ -383,6 +441,9 @@ wss.on("connection", (ws: WebSocket) => {
             }
             if (!bridge) {
                 return;
+            }
+            if (bridge.isPrompting) {
+                await bridge.cancel();
             }
             prompting = true;
             try {
