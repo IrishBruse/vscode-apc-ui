@@ -1,12 +1,17 @@
-# Spec 5: Rename VS Code output channel to `ACP UI RPC`
+# Goal
 
-## Goal
-Standardize output channel naming for easier debugging and support.
+Standardize the VS Code output channel label to **ACP UI RPC** so logs are easy to find when debugging or supporting users.
 
-## Scope
-- Rename output channel label wherever it is created/referenced.
-- Update any docs/tests/snapshots that assert the old channel name.
+# In Scope
 
-## Acceptance Criteria
-- Output appears under `ACP UI RPC` in VS Code.
-- No references to the old channel name remain in source or tests.
+- Rename the output channel wherever it is created and referenced.
+- Update documentation, tests, and snapshots that assert the previous channel name.
+
+# Out of Scope
+
+- Changing log verbosity, format, or which events are logged.
+
+# Acceptance Criteria
+
+- Log output appears under `ACP UI RPC` in the VS Code Output panel.
+- No references to the old channel name remain in source, tests, or user-facing docs that describe where to look for RPC logs.

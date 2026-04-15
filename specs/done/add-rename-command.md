@@ -1,15 +1,18 @@
-# Spec 1: Add `/rename` command
+# Goal
 
-## Goal
-Add a slash command to rename a selected resource from the command input flow.
+Add `/rename` so users can rename the currently selected sidebar resource from the same command input flow as other slash commands.
 
-## Scope
-- Parse `/rename <new-name>` from user input.
-- Validate the command has exactly one target name argument.
-- Trigger existing rename action through the current command execution path.
-- Show success or error feedback in the same channel used by other slash commands.
+# In Scope
 
-## Acceptance Criteria
-- `/rename NewName` renames the currently selected item.
-- Invalid usage (`/rename` with no name) returns a helpful usage hint.
-- Errors from rename action are surfaced to the user.
+- Parse `/rename <new-name>` with exactly one name argument.
+- Route to the existing rename action and surface success or errors in the same channel as other slash commands.
+
+# Out of Scope
+
+- Bulk rename, regex rename, or file-tree rename outside the current selection model.
+
+# Acceptance Criteria
+
+- `/rename NewName` renames the currently selected item when rename is valid.
+- `/rename` with no name shows a clear usage hint.
+- Errors from the underlying rename operation are shown to the user without silent failure.

@@ -1,14 +1,19 @@
-# Spec 3: Add `F2` rename in sidebar items
+# Goal
 
-## Goal
-Enable keyboard rename from sidebar items using `F2`.
+Enable keyboard-driven rename for focused sidebar chat items using **F2**, consistent with common VS Code list patterns.
 
-## Scope
-- Register `F2` keybinding for rename when a sidebar item is focused.
-- Ensure command targets the focused sidebar item.
-- Prevent conflicts with existing keybindings in non-sidebar contexts.
+# In Scope
 
-## Acceptance Criteria
-- Pressing `F2` on a focused sidebar item starts rename.
-- Pressing `F2` outside valid sidebar context does not break existing behavior.
-- Rename result updates the sidebar item label immediately.
+- Register **F2** so it triggers rename when a sidebar item has focus.
+- Ensure the command targets the focused sidebar item, not unrelated trees.
+- Avoid breaking existing keybindings when focus is outside the ACP UI sidebar.
+
+# Out of Scope
+
+- Global F2 behavior for editors or other views; only the ACP UI sidebar rename path is in scope.
+
+# Acceptance Criteria
+
+- **F2** on a focused sidebar item starts inline rename for that item.
+- **F2** outside the valid sidebar context does not change unrelated behavior.
+- The sidebar label updates immediately after a successful rename.

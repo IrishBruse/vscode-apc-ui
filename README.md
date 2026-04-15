@@ -4,7 +4,7 @@ VS Code extension that brings an **ACP UI** panel to the [Agent Client Protocol 
 
 Open **ACP UI** from the activity bar to get a dedicated chat surface next to your code: the **Chats** view lists sessions, and the webview shows the running conversation with the same UI in an editor tab or side panel.
 
-![ACP UI with sidebar sessions and main conversation](docs/Fullscreen.png)
+![ACP UI with sidebar sessions and main conversation](docs/Response.png)
 
 *Activity bar entry, Chats sidebar, and ACP UI webview in one layout.*
 
@@ -26,12 +26,57 @@ Open **ACP UI** from the activity bar to get a dedicated chat surface next to yo
 - **ACP UI RPC** output channel for debugging protocol traffic.
 - **Agent configuration** via `ib-acp-ui.agents` in settings (command, args, env per agent).
 
+## Requirements
+
+- VS Code `1.115.0` or newer.
+- At least one ACP-capable agent CLI available on your `PATH` (for example `agent`, `gemini`, or another ACP-compatible command).
+- Any auth/environment variables required by your chosen agent.
+
+## Quick Start
+
+1. Install the extension.
+2. Open **ACP UI** from the activity bar.
+3. Start a chat with **Open ACP UI** or **New ACP UI in Editor**.
+4. Pick an agent from the chat header (or configure agents in settings first).
+
 ## Usage
 
-1. Install the extension and open the **ACP UI** view in the activity bar.
-2. Use **Open ACP UI** (or **New ACP UI in Editor** from the Chats view) to start a session.
-3. Adjust agents under **Settings → Extensions → ACP UI** (`ib-acp-ui.agents`).
-4. Use composer slash commands documented in [`BUILTIN_COMMANDS.md`](BUILTIN_COMMANDS.md).
+### Configure Agents
+
+Set `ib-acp-ui.agents` in settings. Each entry defines one launchable ACP agent process.
+
+```json
+"ib-acp-ui.agents": [
+  {
+    "name": "Cursor",
+    "command": "agent",
+    "args": ["acp"]
+  },
+  {
+    "name": "Gemini",
+    "command": "gemini",
+    "args": ["--acp"],
+    "env": {
+      "GEMINI_API_KEY": "${env:GEMINI_API_KEY}"
+    }
+  }
+]
+```
+
+Fields:
+- `name`: label shown in ACP UI.
+- `command`: executable to spawn.
+- `args`: optional argument list.
+- `env`: optional per-agent environment variables.
+
+### Common Actions
+
+- Open chat: `Open ACP UI`
+- Create chat in editor: `New ACP UI in Editor`
+- Focus session list: `Focus ACP UI Chats list`
+- Rename/delete sessions from the **Chats** view context actions
+- Inspect protocol traffic: `Show ACP RPC Log`
+- Use composer slash commands from [`BUILTIN_COMMANDS.md`](BUILTIN_COMMANDS.md)
 
 ## Development
 
@@ -47,6 +92,12 @@ npm run verify     # build + check + test + lint
 For a browser-only UI loop without VS Code, use `npm run dev:standalone` (see `standalone/`).
 
 Publishing is automated when `package.json` **version** changes on `main` (see `.github/workflows/publish.yml`).
+
+## Troubleshooting
+
+- No responses in chat: verify your selected agent command runs in a shell and supports ACP mode.
+- Agent missing in picker: confirm `ib-acp-ui.agents` JSON is valid and reload the VS Code window.
+- Need diagnostics: open the `ACP UI RPC` output channel and retry the action.
 
 ## Explore
 
