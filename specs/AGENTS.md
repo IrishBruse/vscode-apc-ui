@@ -1,25 +1,22 @@
 # Format
 
 ```md
-# Goal
+# Problem
 
 1 sentance goal
 
-# In Scope
+# Requirements
 
-- list of inscope requirements
-
-# Out of Scope
-
-- List of out of scope requirements
+- List of Requirements
 
 # Acceptance Criteria
 
 - List of criteria need for this to have reached the goal
 
-# Implementation Plan
+# Out of Scope
 
-A plan with some code snippet of only the major changes that will be added leave out minor changes
+- List of out of scope requirements
+
 
 # Anything else (optional)
 
